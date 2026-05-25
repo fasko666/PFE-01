@@ -266,7 +266,7 @@ export default function GlobalNavbar() {
             <Trigger label="Find Talent" isOpen={openMenu === 'talent'} onEnter={() => { open('talent'); setActiveCat(0); }} onLeave={close}>
               <MegaMenu cats={TALENT_CATS} activeCat={activeCat} setActiveCat={setActiveCat} onGo={go} onClose={() => setOpenMenu(null)} compact />
             </Trigger>
-            {[['Why PANDA', '/#how'], ['Pricing', '/#pricing'], ['Enterprise', '/']].map(([lbl, href]) => (
+            {[['Why PANDA', '/#how'], ['Pricing', '/pricing'], ['Enterprise', '/']].map(([lbl, href]) => (
               <Link key={lbl} to={href} className="px-3 py-2 text-[13px] font-medium text-dark-400 hover:text-dark-100 hover:bg-dark-800/70 rounded-lg transition-all">
                 {lbl}
               </Link>

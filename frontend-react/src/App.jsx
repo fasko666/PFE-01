@@ -11,6 +11,7 @@ import GlobalNavbar from './components/layout/GlobalNavbar';
 
 // Lazy pages
 const Landing       = lazy(() => import('./pages/Landing/Landing'));
+const Pricing       = lazy(() => import('./pages/Pricing/Pricing'));
 const Login           = lazy(() => import('./pages/Auth/Login'));
 const Register        = lazy(() => import('./pages/Auth/Register'));
 const Onboarding      = lazy(() => import('./pages/Auth/Onboarding'));
@@ -80,6 +81,7 @@ function AppRoot() {
         <Routes>
           {/* Public */}
           <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
 
           {/* Auth */}
           <Route element={<AuthLayout />}>

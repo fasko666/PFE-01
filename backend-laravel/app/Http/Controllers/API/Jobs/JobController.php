@@ -51,6 +51,8 @@ class JobController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         // Accept both alias and real field names
         $input = array_merge($request->all(), [
             'type'   => $request->job_type ?? $request->type ?? 'fixed',
