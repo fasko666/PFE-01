@@ -37,6 +37,7 @@ const AdminDashboard      = lazy(() => import('./pages/Admin/AdminDashboard'));
 const JobsMarketplace = lazy(() => import('./pages/Jobs/JobsMarketplace'));
 const JobDetail       = lazy(() => import('./pages/Jobs/JobDetail'));
 const PostJob         = lazy(() => import('./pages/Jobs/PostJob'));
+const CategoryJobs    = lazy(() => import('./pages/Jobs/CategoryJobs'));
 const MyJobs          = lazy(() => import('./pages/Jobs/MyJobs'));
 const MyProposals     = lazy(() => import('./pages/Jobs/MyProposals'));
 
@@ -109,6 +110,7 @@ function AppRoot() {
           <Route path="/search"                        element={<Search />} />
           <Route path="/find-talent"                   element={<FindTalent />} />
           <Route path="/find-talent/:skill"            element={<FindTalent />} />
+          <Route path="/jobs/category/:slug"           element={<CategoryJobs />} />
 
           {/* Auth */}
           <Route element={<AuthLayout />}>

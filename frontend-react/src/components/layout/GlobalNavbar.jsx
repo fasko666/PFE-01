@@ -159,6 +159,97 @@ const GET_OUTCOMES = {
   ],
 };
 
+/* ── Find work mega-menu data ─────────────────────────── */
+const FIND_WORK_CATS = [
+  {
+    id: 'ai', label: 'AI & Automation',
+    items: [
+      { label: 'Artificial Intelligence', desc: 'Work on cutting-edge AI projects',     href: '/jobs/category/ai' },
+      { label: 'AI Model Training',       desc: 'Label, train and fine-tune AI models',  href: '/jobs/category/ai-training' },
+      { label: 'AI Content Creation',     desc: 'Write and edit AI-assisted content',    href: '/jobs/category/ai-content' },
+      { label: 'AI Writing',              desc: 'Write with and about AI',                href: '/jobs/category/ai-writing' },
+      { label: 'Chatbot',                 desc: 'Deploy conversational bots',             href: '/jobs/category/chatbot' },
+      { label: 'AI Generated Video',      desc: 'Create AI-powered video content',        href: '/jobs/category/ai-video' },
+      { label: 'Prompt Engineering',      desc: 'Craft prompts for better AI outputs',    href: '/jobs/category/prompt' },
+      { label: 'Generative AI',           desc: 'Build with generative AI tools',         href: '/jobs/category/generative-ai' },
+      { label: 'Automation',              desc: 'Workflows that cut manual work',         href: '/jobs/category/automation' },
+      { label: 'ChatGPT',                 desc: 'Projects using ChatGPT and OpenAI',      href: '/jobs/category/chatgpt' },
+    ],
+  },
+  {
+    id: 'dev', label: 'Development & IT',
+    items: [
+      { label: 'Full Stack Development', desc: 'End-to-end web development',     href: '/jobs?category=fullstack' },
+      { label: 'Frontend Development',   desc: 'React, Vue, Angular projects',    href: '/jobs?category=frontend' },
+      { label: 'Backend Development',    desc: 'APIs, databases, microservices', href: '/jobs?category=backend' },
+      { label: 'Mobile Apps',            desc: 'iOS, Android, React Native',      href: '/jobs?category=mobile' },
+      { label: 'DevOps & Cloud',         desc: 'AWS, GCP, Kubernetes, CI/CD',     href: '/jobs?category=devops' },
+      { label: 'QA & Testing',           desc: 'Manual, automation, performance', href: '/jobs?category=qa' },
+      { label: 'Data Engineering',       desc: 'Pipelines, warehouses, ETL',      href: '/jobs?category=data-eng' },
+      { label: 'Cybersecurity',          desc: 'Pentest, security audits',        href: '/jobs?category=security' },
+    ],
+  },
+  {
+    id: 'marketing', label: 'Marketing',
+    items: [
+      { label: 'SEO',                    desc: 'On-page, technical, off-page',    href: '/jobs?category=seo' },
+      { label: 'Paid Ads',               desc: 'Google, Meta, TikTok campaigns',  href: '/jobs?category=paid-ads' },
+      { label: 'Social Media',           desc: 'Strategy, content, community',    href: '/jobs?category=social' },
+      { label: 'Email Marketing',        desc: 'Campaigns, automations, flows',   href: '/jobs?category=email' },
+      { label: 'Content Strategy',       desc: 'Editorial planning and growth',   href: '/jobs?category=content' },
+      { label: 'Brand Marketing',        desc: 'Positioning and brand building',  href: '/jobs?category=brand' },
+    ],
+  },
+  {
+    id: 'design', label: 'Design & Creative',
+    items: [
+      { label: 'UI/UX Design',           desc: 'Product and interface design',    href: '/jobs?category=uiux' },
+      { label: 'Logo & Branding',        desc: 'Logos and visual identity',       href: '/jobs?category=branding' },
+      { label: 'Graphic Design',         desc: 'Print, social, illustrations',    href: '/jobs?category=graphic' },
+      { label: 'Motion Graphics',        desc: 'After Effects, animations',        href: '/jobs?category=motion' },
+      { label: '3D & AR/VR',             desc: 'Blender, Cinema 4D, Unity',        href: '/jobs?category=3d' },
+      { label: 'Presentation Design',    desc: 'Decks, pitch and reports',         href: '/jobs?category=presentation' },
+    ],
+  },
+  {
+    id: 'video', label: 'Video & Audio',
+    items: [
+      { label: 'Video Editing',          desc: 'Premiere, DaVinci, post-prod',     href: '/jobs?category=video-edit' },
+      { label: 'Voice Over',             desc: 'Commercial, narration, IVR',       href: '/jobs?category=voice' },
+      { label: 'Audio Production',       desc: 'Mixing, mastering, podcasts',      href: '/jobs?category=audio' },
+      { label: 'Animation',              desc: '2D and 3D animation',              href: '/jobs?category=animation' },
+      { label: 'YouTube Content',        desc: 'Channel growth and editing',        href: '/jobs?category=youtube' },
+    ],
+  },
+  {
+    id: 'writing', label: 'Writing & Content',
+    items: [
+      { label: 'Copywriting',            desc: 'Sales, web, ad copy',              href: '/jobs?category=copy' },
+      { label: 'Blog & Article Writing', desc: 'SEO-optimized long-form',          href: '/jobs?category=blog' },
+      { label: 'Technical Writing',      desc: 'Docs, API reference, guides',       href: '/jobs?category=tech-writing' },
+      { label: 'Translation',            desc: 'Multi-language content',            href: '/jobs?category=translation' },
+      { label: 'Editing & Proofreading', desc: 'Polish and quality assurance',      href: '/jobs?category=editing' },
+      { label: 'Resume Writing',         desc: 'CV, LinkedIn, cover letters',       href: '/jobs?category=resume' },
+    ],
+  },
+  {
+    id: 'admin', label: 'Admin & Support',
+    items: [
+      { label: 'Virtual Assistant',      desc: 'Inbox, calendar, research',         href: '/jobs?category=va' },
+      { label: 'Data Entry',             desc: 'Spreadsheets and clean-up',         href: '/jobs?category=data-entry' },
+      { label: 'Customer Support',       desc: 'Chat, email, phone support',         href: '/jobs?category=support' },
+      { label: 'Project Management',     desc: 'Scrum, Asana, Jira workflows',       href: '/jobs?category=pm' },
+      { label: 'Bookkeeping',            desc: 'QuickBooks, Xero, reconciliation',   href: '/jobs?category=bookkeeping' },
+    ],
+  },
+];
+
+const FIND_WORK_FOOTER = [
+  { label: 'See all jobs',        href: '/jobs' },
+  { label: 'Win work with ads',   href: '/jobs' },
+  { label: 'Ways to earn',        href: '/how-it-works' },
+];
+
 /* ── Why PANDA mega-menu data ──────────────────────────── */
 const WHY_PANDA = {
   intro: {
@@ -317,6 +408,10 @@ export default function GlobalNavbar() {
 
             <Trigger label="Get outcomes" isOpen={openMenu === 'outcomes'} onEnter={() => open('outcomes')} onLeave={close}>
               <GetOutcomesMenu onGo={go} />
+            </Trigger>
+
+            <Trigger label="Find work" isOpen={openMenu === 'findwork'} onEnter={() => open('findwork')} onLeave={close}>
+              <FindWorkMenu onGo={go} onClose={() => setOpenMenu(null)} />
             </Trigger>
 
             <Trigger label="Why PANDA" isOpen={openMenu === 'why'} onEnter={() => open('why')} onLeave={close}>
@@ -734,6 +829,81 @@ function GetOutcomesMenu({ onGo }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── Find work mega-menu ───────────────────────────────── */
+function FindWorkMenu({ onGo, onClose }) {
+  const [activeCat, setActiveCat] = useState(0);
+  const cat = FIND_WORK_CATS[activeCat];
+  const half = Math.ceil(cat.items.length / 2);
+  const col1 = cat.items.slice(0, half);
+  const col2 = cat.items.slice(half);
+
+  return (
+    <div className="flex flex-col" style={{ width: 880 }}>
+      <div className="grid grid-cols-[220px_1fr_1fr]">
+        {/* Left categories pane */}
+        <div className="bg-dark-800/50 border-r border-dark-700/60 py-3">
+          <p className="text-[10px] font-bold text-dark-500 uppercase tracking-widest px-5 mb-2 pt-1">Categories</p>
+          {FIND_WORK_CATS.map((c, i) => (
+            <button
+              key={c.id}
+              onMouseEnter={() => setActiveCat(i)}
+              onClick={() => onGo(`/jobs?category=${c.id}`)}
+              className={`w-full text-left flex items-center justify-between px-5 py-2 text-[13px] transition-all ${
+                activeCat === i
+                  ? 'bg-dark-900 text-dark-100 font-semibold'
+                  : 'text-dark-300 hover:text-dark-100'
+              }`}
+            >
+              {c.label}
+              <ChevronDown className={`w-3 h-3 -rotate-90 shrink-0 transition-opacity ${activeCat === i ? 'opacity-100' : 'opacity-50'}`} strokeWidth={2.5} />
+            </button>
+          ))}
+        </div>
+
+        {/* Two item columns */}
+        {[col1, col2].map((items, ci) => (
+          <div key={ci} className={`p-4 ${ci === 0 ? '' : 'border-l border-dark-700/40'}`}>
+            {ci === 0 && (
+              <div className="text-[10px] font-bold text-dark-500 uppercase tracking-widest px-3 mb-2.5">
+                {cat.label}
+              </div>
+            )}
+            {ci !== 0 && <div className="h-[18px] mb-2.5" />}
+            <div className="space-y-0.5">
+              {items.map((it) => (
+                <button
+                  key={it.label}
+                  onClick={() => onGo(it.href)}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-dark-800 transition-colors group"
+                >
+                  <div className="text-[13px] font-semibold text-dark-100 group-hover:text-primary-300 transition-colors leading-tight">
+                    {it.label}
+                  </div>
+                  <div className="text-[11px] text-dark-500 mt-0.5 leading-snug">{it.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer row */}
+      <div className="border-t border-dark-700/60 px-5 py-3 flex items-center gap-6">
+        {FIND_WORK_FOOTER.map((f) => (
+          <button
+            key={f.label}
+            onClick={() => onGo(f.href)}
+            className="inline-flex items-center gap-1 text-[12px] font-semibold text-dark-200 hover:text-primary-300 transition-colors"
+          >
+            {f.label}
+            <ChevronDown className="w-3 h-3 -rotate-90" strokeWidth={2.5} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

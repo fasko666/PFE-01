@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,36 +21,174 @@ const SUB_NAV = ['Development & IT', 'AI Services', 'Design & Creative', 'Sales 
 /* ─── Talent results ─────────────────────────────────────────── */
 const TALENT = [
   {
-    name: 'Dipesh S.', title: 'Social Media Marketing Expert', country: 'Nepal',
-    jobSuccess: 90, earned: '$60K+', available: true,
-    skills: ['Facebook Ads Manager', 'Facebook Advertising', 'Digital Marketing Strategy', '+12'],
-    bio: "Tired of boring, lackluster ads that couldn't sell sunscreen in the Sahara? Picture this: you have a product or service that deserves the spotlight, and you want it to shine brighter than a disco ball at a 70s party. Well, fret no…",
-    avatar: 'https://ui-avatars.com/api/?name=Dipesh+S&background=4361ff&color=fff&size=120&bold=true',
+    name: 'Fahad W.', title: 'Medical Billing Specialist and Coding Project Management, AR Follow-up', country: 'Pakistan',
+    jobSuccess: 100, earned: '$40K+', available: true,
+    skills: ['Data Entry', 'Computer Skills', 'Medical Records Software', 'Microsoft Word', 'ICD Coding', '+10'],
+    bio: 'Thank you for visiting my profile. I have over 12 years of experience working as a Medical Billing Specialist, Virtual Assistant, Data entry/processing, Project Management, Technical Support, and Call Center. I have excellent…',
+    avatar: 'https://ui-avatars.com/api/?name=Fahad+W&background=4361ff&color=fff&size=120&bold=true',
+    profile: {
+      city: 'Rawalpindi, Pakistan',
+      localTime: '10:34 am local time',
+      since: 'Since 2013, I have worked with several US clients in the medical billing and revenue cycle management industry, helping practices recover revenue and reduce denials.',
+      stats: { jobs: 5, hours: '4.8K', rating: 5.0, reviews: 5, jobSuccess: 100 },
+      feedback: [
+        { date: 'April 10, 2026',    title: 'Medical Billing & RCM Expert to cover Back Log', rating: 5.0, body: '"He knows how to fix and respond on time. Fahad is highly experienced and recommended for Medical Billing Services. His skills really help us to minimize and understand how to keep..."', client: 'Muhammad Arif K.' },
+        { date: 'October 20, 2025',  title: 'Accounts Receivable Specialist',                rating: 5.0, body: '"Performed exceptionally well managing the AR for a small PT clinic."', client: 'Lisa N.' },
+        { date: 'February 16, 2025', title: 'Medical Biller Required for Collaborate MD',     rating: 5.0, body: '"Fahad provided outstanding medical billing training for our staff. His deep expertise, engaging teaching style, and ability to tailor the sessions to our needs were exceptional. We…"', client: 'Kavin M.' },
+        { date: 'June 24, 2022',     title: 'Require Medical billing Specialist for Collaborate MD', rating: 5.0, body: '"Fahad is hard working and dedicated, I will work with Fahad on future projects 100%. Excellent job."', client: 'Fahad H.' },
+      ],
+      completedJobs: [
+        { title: 'Medical Billing & RCM Expert to cover Back Log',                  rating: 5.0, dates: 'Apr 7, 2026 - Apr 10, 2026',  tags: ['Data Entry', 'Microsoft Excel', 'Web Development', 'Graphic Design', 'Logo Design'], desc: 'We are seeking a skilled professional to manage our medical billing and RCM processes. Responsibilities…' },
+        { title: 'Accounts Receivable Specialist',                                  rating: 5.0, dates: 'Dec 26, 2023 - Oct 20, 2025', tags: ['Data Entry', 'Microsoft Excel', 'Accounts Receivable', 'Accounts Receivable Management'], desc: 'We are seeking a highly skilled individual to assist with the wind-down process of accounts receivable…' },
+        { title: 'Medical Biller Required for Collaborate MD and Rain Tree Software',rating: 5.0, dates: 'Feb 14, 2025 - Feb 16, 2025', tags: ['Data Entry', 'Microsoft Excel', 'Medical Billing & Coding', 'Customer Service'],         desc: 'We are seeking a skilled Medical Biller who is proficient in both Collaborate MD and Rain Tree software…' },
+        { title: 'Medical Billing and denial - with ECW experience - *Full time only*',rating: 5.0, dates: 'May 22, 2023 - Dec 7, 2023', tags: ['EMR Data Entry', 'Medical Billing & Coding', 'Phone Communication', 'Administrative S'],     desc: 'Looking for someone to help out with reviewing and Submitting claims, Post EOBs, correct/appeal denials…' },
+        { title: 'Require Medical billing Specialist for Collaborate MD',             rating: 5.0, dates: 'Jun 23, 2022 - Jun 24, 2022', tags: ['Microsoft Excel', 'Data Entry', 'Medical Billing & Coding', 'Customer Service'],                 desc: 'Looking for Medical billing Specialist, for the short term project. I have few claims need to be fixed…' },
+      ],
+      portfolio: [
+        { title: 'Practice Suits Complete RCM', tag: 'Data Entry', tags: '+7', gradient: 'from-blue-500/30 via-red-500/20 to-emerald-500/30' },
+        { title: 'Collaborate MD',              tag: 'Data Entry', tags: '+2', gradient: 'from-emerald-500/30 to-green-700/30' },
+      ],
+      skills: ['Data Entry', 'Computer Skills', 'Medical Records Software', 'Microsoft Word', 'ICD Coding', 'Accounts Receivable Management', 'Insurance Claim Submission', 'Administrative Support', 'H-Connect Compusoft EHR', 'Medical Billing & Coding', 'Technical Support', 'Insurance Verification', 'Accounts Receivable', 'Electronic Medical Record', 'Medical Billing'],
+        browseSimilar: ['Data Entry Specialists', 'Excel Experts', 'Administrative Assistants', 'Google Docs Experts', 'Verification Specialists'],
+    },
   },
   {
-    name: 'Jarod S.', title: '300M+ Generated For Service & SaaS Businesses. Google Ads + CRO', country: 'United States',
-    jobSuccess: 100, earned: '$200K+', available: true, consultations: true,
-    skills: ['Google Ads', 'PPC Campaign Setup & Management', 'Display Ad', 'Digital Marketing', '+16'],
-    bio: '💯 200% Money Back Guarantee 💯 Month-to-Month 💯 Landers + CRO Included 💯 Google Partner I help service & SaaS businesses drive qualified traffic to their website, turn that traffic into leads, measure which lead…',
-    associated: { name: 'Comet Fuel', earned: '$6K+' },
-    avatar: 'https://ui-avatars.com/api/?name=Jarod+S&background=8b5cf6&color=fff&size=120&bold=true',
+    name: 'Ghandour H.', title: 'Automation Engineer | Python, AI, n8n & RPA Systems', country: 'Egypt',
+    jobSuccess: 100, earned: '$25K+', available: true, consultations: true,
+    skills: ['Web Scraping', 'Automation', 'Python', 'Data Extraction', 'Django', 'Back-End Development', '+14'],
+    bio: 'I build automation systems that replace hours of repetitive manual work and keep running reliably for months without anyone touching them. 🚀 Recent builds: A multi-device automation platform handling large-scale…',
+    avatar: 'https://ui-avatars.com/api/?name=Ghandour+H&background=8b5cf6&color=fff&size=120&bold=true',
   },
   {
-    name: 'Zoreslava H.', title: 'Quality Assurance Engineer | Team Lead | Senior QA | Manual testing', country: 'Ukraine',
-    jobSuccess: 99, earned: '$3K+', available: true,
-    skills: ['Postman', 'Regression Testing', 'Test Results & Analysis', 'Mobile QA', 'Test Case Design', '+15'],
-    bio: 'Greetings! 👋 🌍 True expert in QA. 🏆 8+ years of experience, manual, automating, and refining software end-to-end. 🚀 I help startups and established teams release with confidence by ensuring quality at every stage fro…',
-    associated: { name: 'QUARTE', earned: '$90K+' },
-    avatar: 'https://ui-avatars.com/api/?name=Zoreslava+H&background=ec4899&color=fff&size=120&bold=true',
+    name: 'Md Jamrul M.', title: 'Senior AI-Enabled E-commerce Specialist | CMS, SEO & Automation', country: 'Bangladesh',
+    jobSuccess: 95, earned: '$60K+', available: true, consultations: true,
+    skills: ['Microsoft Word', 'Copy & Paste', 'Microsoft Excel', 'Data Entry', 'WordPress', 'PDF Conversion', '+9'],
+    bio: 'I help e-commerce brands, agencies, and growing businesses keep their stores, content, and back-office workflows organised, accurate, and scalable. I have been working with international clients since 2015 and on…',
+    avatar: 'https://ui-avatars.com/api/?name=Md+Jamrul+M&background=ec4899&color=fff&size=120&bold=true',
   },
   {
-    name: 'Ashkan A.', title: 'Python Backend Developer | AI Integration & Automation Specialist', country: 'Turkey',
-    jobSuccess: 96, earned: '$45K+', available: true,
-    skills: ['Python', 'FastAPI', 'OpenAI API', 'PostgreSQL', '+9'],
-    bio: 'Backend engineer with 7+ years specializing in Python, FastAPI, and AI integrations. I build production-grade APIs, ETL pipelines, and AI agents. Recent projects include RAG systems for SaaS startups and automation for…',
-    avatar: 'https://ui-avatars.com/api/?name=Ashkan+A&background=10b981&color=fff&size=120&bold=true',
+    name: 'Raton M.', title: 'B2B Lead Generation | Email-List Building | Any Target Lead | Scraping', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$20K+', available: true,
+    skills: ['Lead Generation', 'Data Entry', 'Company Research', 'Contact List', 'Data Scraping', '+10'],
+    bio: '🎯 "I always deliver more than value" 🎯 ✨ Experience Matters: I am a full-time professional VA with…',
+    avatar: 'https://ui-avatars.com/api/?name=Raton+M&background=10b981&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Aqssa Z.', title: 'PhD Researcher/Content Writer/SPSS Expert', country: 'Pakistan',
+    jobSuccess: 97, earned: '$9K+',
+    skills: ['SEO Writing', 'Research & Strategy', 'Academic Research', 'Essay Writing', 'Research Proposals', '+8'],
+    bio: '👋 Welcome to my profile. ⭐ TOP RATED ⭐ With over 7 years of experience in research and content writing, I am dedicated to delivering high-quality, insightful, and meticulously researched content tailored to your specific…',
+    avatar: 'https://ui-avatars.com/api/?name=Aqssa+Z&background=f43f5e&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'MD. Mehedi H.', title: 'Certified GA4 & GTM Expert | Conversion Tracking, Server-Side Specialist', country: 'Bangladesh',
+    jobSuccess: 98, earned: '$20K+', available: true,
+    skills: ['Google Tag Manager', 'Marketing Analytics', 'Data Visualization', 'Shopify', '+11'],
+    bio: '🚀 Top-rated and Certified Google Analytics 4 (GA4) and Google Tag Manager (GTM) expert with 5+ years of experience in delivering data-driven tracking solutions. I specialize in Server-Side Tracking, conversion…',
+    avatar: 'https://ui-avatars.com/api/?name=MD+Mehedi+H&background=3b82f6&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Stefan L.', title: 'WordPress Web Developer | Website security expert | 24h available', country: 'Serbia',
+    jobSuccess: 100, earned: '$100K+', available: true,
+    skills: ['PHP', 'Search Engine Optimization', 'Web Design', 'WordPress', 'Website', 'Yoast SEO', '+10'],
+    bio: 'Experienced WordPress web developer, available 24h, on your service for urgent tasks and long term projects, same as complete server maintenance on daily/weekly level for all time zones! - WordPress website complete…',
+    avatar: 'https://ui-avatars.com/api/?name=Stefan+L&background=a855f7&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Md Makshudul H.', title: 'Google Ads | Google Ads Manager | Search Engine Marketing', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$600+', available: true, consultations: true,
+    skills: ['Digital Marketing', 'Digital Marketing Materials', 'Digital Marketing Strategy', 'Google Ad Manager', '+11'],
+    bio: "Hello, I'm Makshud 👋 Give me something to build, and I'll create a system that works for you 24/7 - consistently delivering results. That's my commitment. If you shoot me a invitation or message, I'll send you a personalised…",
+    avatar: 'https://ui-avatars.com/api/?name=Md+Makshudul+H&background=06b6d4&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Vinod H.', title: 'SEO Expert, Guest Blogger, Blogger Outreach, Guest Posting Service', country: 'India',
+    jobSuccess: 100, earned: '$1M+', available: true,
+    skills: ['Content SEO', 'SEO Backlinking', 'Search Engine Optimization', 'WordPress', '+10'],
+    bio: "I began my career as a software engineer in Mumbai in 2007, moved to Singapore, and eventually founded Walnut Solutions. With over 13 years of experience, I've worked with clients across three regions, specializing in…",
+    avatar: 'https://ui-avatars.com/api/?name=Vinod+H&background=eab308&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Aman H.', title: 'SEO Content Writer | 9+ Years Experience', country: 'India',
+    jobSuccess: 100, earned: '$40K+', consultations: true,
+    skills: ['SEO Content', 'SEO Writing', 'SEO Keyword Research', 'SEO Competitor Analysis', 'Yoast SEO', '+9'],
+    bio: "*Last updated: May, 2026* Hey there! I'm Aman, an on-page SEO expert with 9+ years of expertise working for brands of all sizes. You'd need me for any of these reasons: - Your website isn't getting enough traffic. - You hav…",
+    avatar: 'https://ui-avatars.com/api/?name=Aman+H&background=0ea5e9&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Harjeet K.', title: 'Wordpress/Joomla Expert | Elementor Pro Specialist | LMS | Long-Term Support', country: 'United States',
+    jobSuccess: 100, earned: '$90K+',
+    skills: ['LearnDash', 'Elementor', 'PHP', 'Web Design', 'BuddyPress', 'WordPress', 'WooCommerce', '+8'],
+    bio: 'INDIVIDUAL FREELANCER! TOP RATED PLUS FREELANCER! Available for full time. I bring 9+ years of professional experience in web development and design, including 7 years in IT companies as a web developer…',
+    avatar: 'https://ui-avatars.com/api/?name=Harjeet+K&background=84cc16&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'MD Habibul Islam H.', title: 'Converting WordPress Website Expert | Elementor | Divi | Oxygen', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$4K+',
+    skills: ['WooCommerce', 'Elementor', 'Divi', 'Web Design', 'Web Development', 'Website Redesign', '+9'],
+    bio: 'Hello, Looking for a guy who specializes in better converting rate for your WordPress Website? Who also can create stress-free WordPress solutions with Elementor Pro, Divi or Oxygen? With a track record of raising profit…',
+    avatar: 'https://ui-avatars.com/api/?name=MD+Habibul+Islam+H&background=22c55e&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Suman H.', title: 'eCommerce VA, TPT Store, Etsy, Shopify, Canva, PowerPoint, Design', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$4K+', available: true,
+    skills: ['Data Entry', 'Lead Generation', 'Online Research', 'Store Management', '+11'],
+    bio: 'I am a professional freelancer specializing in the Teachers Pay Teachers (TPT) platform, with expertise in instructional design and educational product development. I focus on understanding client requirements and…',
+    avatar: 'https://ui-avatars.com/api/?name=Suman+H&background=ef4444&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Seema R.', title: 'WordPress Data Entry | Admin Services', country: 'India',
+    jobSuccess: 100, earned: '$50K+',
+    skills: ['Shopify', 'Adobe Photoshop', 'WordPress', 'Magento', 'Administrative Support', '+7'],
+    bio: 'My self Seema Rana - having more than 6 years experience in WordPress content management, E-Commerce products uploading, social media management & web research. A very highly self-motivated professional with…',
+    avatar: 'https://ui-avatars.com/api/?name=Seema+R&background=f97316&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Iqbal H.', title: 'Virtual Assistant, Data Entry Specialist, Research, Product Listing', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$40K+',
+    skills: ['Google Workspace', 'Data Entry', 'Product Listings', 'Microsoft Word', 'Adobe Photoshop', '+8'],
+    bio: 'TOP-RATED Virtual Assistant!! 12+ Years Experience. 9000+ Working Hours. Data Entry, Research, Product Listing, Lead generation, ChatGPT, AI Enthusiast. Hey! Are you looking for a fast, detail-oriented, quick-…',
+    avatar: 'https://ui-avatars.com/api/?name=Iqbal+H&background=14b8a6&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Pandurang K.', title: 'PDF Expert | PDF Accessibility, WCAG, Section 505 | MS Word Expert', country: 'India',
+    jobSuccess: 97, earned: '$15K+', available: true,
+    skills: ['Microsoft Excel', 'Microsoft Word', 'Data Entry', 'Adobe Photoshop', 'Online Research', '+8'],
+    bio: 'FYI: $15/hr for the work PDF Accessibility/Remediation, WCAG, Section 505. Hello, I have 15+year experience in multiple Industries E-Publication, E-learning, Financial Documents, Data Management, Data Conversion, and…',
+    avatar: 'https://ui-avatars.com/api/?name=Pandurang+K&background=8b5cf6&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Md. Altab H.', title: 'WordPress, WooCommerce & Elementor Expert', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$50K+', consultations: true,
+    skills: ['WooCommerce', 'WordPress', 'CMS Product Upload', 'Data Entry', 'Accuracy Verification', '+7'],
+    bio: 'Hello! I am a WordPress, WooCommerce & Elementor Expert with experience in building professional, responsive, and SEO-friendly websites. I help businesses, bloggers, and online stores create modern, fast, and…',
+    avatar: 'https://ui-avatars.com/api/?name=Md+Altab+H&background=4ade80&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Md. Mijanur H.', title: 'Virtual Assistant Data Entry Ecommerce Product Listing Image Editing', country: 'Bangladesh',
+    jobSuccess: 100, earned: '$15K+', consultations: true,
+    skills: ['Data Entry', 'Amazon Seller Central', 'Amazon', 'Product Listings', 'Amazon FBA', '+15'],
+    bio: "Hi, I'm Mijan, a full-time eCommerce assistant. I've worked with Amazon, eBay, Walmart, and Shopify, helping brands grow their online presence. I specialize in Storefront Design, A+ Content, Listing Images, and Brand Stor…",
+    associated: { name: 'Mijanur Hossain', earned: '' },
+    avatar: 'https://ui-avatars.com/api/?name=Md+Mijanur+H&background=f59e0b&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Okta H.', title: 'Data Entry Specialist, Admin Support, Virtual Assistance', country: 'Indonesia',
+    jobSuccess: 100, earned: '$70K+',
+    skills: ['Microsoft Word', 'Google Docs', 'Data Entry', 'Microsoft Excel', 'Photo Editing', '+10'],
+    bio: "Hi! I'm a dedicated freelancer from Indonesia, and I've been working on PANDA since 2016. Over the years, I've helped clients with a variety of tasks — from data entry, virtual assistance, and internet research to transcription…",
+    avatar: 'https://ui-avatars.com/api/?name=Okta+H&background=ec4899&color=fff&size=120&bold=true',
+  },
+  {
+    name: 'Zahid H.', title: 'Graphic & Web Designer | Branding Expert', country: 'Pakistan',
+    jobSuccess: 100, earned: '$30K+', consultations: true,
+    skills: ['Graphic Design', 'Adobe Illustrator', 'Thumbnail', 'Landing Page', 'Banner Ad Design', '+10'],
+    bio: "Hi! I'm a professional Graphic Designer and Web Designer with over 15 years of experience creating high-quality, creative, and results-driven designs for clients worldwide. I specialize in logo design, branding, website design,…",
+    avatar: 'https://ui-avatars.com/api/?name=Zahid+H&background=0891b2&color=fff&size=120&bold=true',
   },
 ];
+
+const PEOPLE_ALSO_SEARCHED = ['k', 'a', 'hacker', 'ha'];
 
 /* ─── Job results ────────────────────────────────────────────── */
 const JOBS = [
@@ -91,31 +229,66 @@ const JOBS = [
   },
 ];
 
+/* ─── Filter constants ───────────────────────────────────────── */
+const BADGE_OPTIONS = [
+  { name: 'Top Rated Plus', color: 'bg-pink-500'  },
+  { name: 'Top Rated',      color: 'bg-blue-500'  },
+  { name: 'Rising Talent',  color: 'bg-green-500' },
+];
+const SKILLS_BASE = ['Data Entry', 'Java', 'React', 'WordPress', 'Android App Development', 'Adobe Photoshop', 'Python'];
+const SKILLS_MORE = ['Node.js', 'TypeScript', 'Figma', 'SEO', 'Copywriting', 'Shopify'];
+
+const JOB_SUCCESS_OPTS = ['Any job success', '80% & up', '90% & up'];
+const EARNED_OPTS      = ['Any amount earned', '$1+ earned', '$100+ earned', '$1K+ earned', '$10K+ earned', 'No earnings yet'];
+const HOURS_OPTS       = ['Any hours', '1+ hours billed', '100+ hours billed', '1,000+ hours billed'];
+const ENGLISH_OPTS     = ['Any level', 'Basic', 'Conversational', 'Fluent', 'Native or bilingual'];
+
+const DEFAULT_FILTERS = {
+  badges: [],
+  skills: [],
+  type: 'freelancers & agencies',
+  contractToHire: false,
+  consultations: false,
+  jobSuccess: 'Any job success',
+  earned: 'Any amount earned',
+  hours: 'Any hours',
+  english: 'Any level',
+};
+
+/* Parse "$40K+", "$1M+", "$600+" into a numeric dollar amount. */
+function parseEarned(s) {
+  if (!s) return 0;
+  const m = s.match(/\$([\d.]+)([KM])?\+?/i);
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  if (m[2] === 'M') return n * 1_000_000;
+  if (m[2] === 'K') return n * 1_000;
+  return n;
+}
+
+/* Derive a talent badge from job success — used since the data doesn't carry an explicit badge. */
+function getBadge(t) {
+  if (t.jobSuccess >= 100) return 'Top Rated Plus';
+  if (t.jobSuccess >= 90)  return 'Top Rated';
+  return 'Rising Talent';
+}
+
 /* ─── Filter sidebar — Talent ────────────────────────────────── */
-function TalentFilters() {
-  const [badges, setBadges] = useState([]);
-  const [type, setType] = useState('all');
-  const [skills, setSkills] = useState([]);
+function TalentFilters({ filters, setFilters }) {
   const [showAllSkills, setShowAllSkills] = useState(false);
-  const toggleBadge = (b) => setBadges((s) => s.includes(b) ? s.filter((x) => x !== b) : [...s, b]);
-  const toggleSkill = (s) => setSkills((cur) => cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]);
 
-  const BADGES = [
-    { name: 'Top Rated Plus', color: 'bg-pink-500' },
-    { name: 'Top Rated',      color: 'bg-blue-500' },
-    { name: 'Rising Talent',  color: 'bg-green-500' },
-  ];
-
-  const SKILLS_BASE = ['Data Entry', 'Java', 'React', 'WordPress', 'Android App Development', 'Adobe Photoshop', 'Python'];
-  const SKILLS_MORE = ['Node.js', 'TypeScript', 'Figma', 'SEO', 'Copywriting', 'Shopify'];
+  const toggleBadge = (b) =>
+    setFilters((f) => ({ ...f, badges: f.badges.includes(b) ? f.badges.filter((x) => x !== b) : [...f.badges, b] }));
+  const toggleSkill = (s) =>
+    setFilters((f) => ({ ...f, skills: f.skills.includes(s) ? f.skills.filter((x) => x !== s) : [...f.skills, s] }));
+  const setField = (k, v) => setFilters((f) => ({ ...f, [k]: v }));
 
   return (
     <aside className="space-y-6">
-      {/* Talent badge */}
       <FilterGroup title="Talent badge" hint>
         <div className="space-y-2.5">
-          {BADGES.map((b) => (
-            <Checkbox key={b.name} checked={badges.includes(b.name)} onChange={() => toggleBadge(b.name)}>
+          {BADGE_OPTIONS.map((b) => (
+            <Checkbox key={b.name} checked={filters.badges.includes(b.name)} onChange={() => toggleBadge(b.name)}>
               <span className={`inline-block w-3 h-3 rounded ${b.color} mr-1.5 align-middle`} />
               {b.name}
             </Checkbox>
@@ -123,14 +296,13 @@ function TalentFilters() {
         </div>
       </FilterGroup>
 
-      {/* Skills */}
       <FilterGroup title="Skills">
         <div className="space-y-2.5">
           {SKILLS_BASE.map((s) => (
-            <Checkbox key={s} checked={skills.includes(s)} onChange={() => toggleSkill(s)}>{s}</Checkbox>
+            <Checkbox key={s} checked={filters.skills.includes(s)} onChange={() => toggleSkill(s)}>{s}</Checkbox>
           ))}
           {showAllSkills && SKILLS_MORE.map((s) => (
-            <Checkbox key={s} checked={skills.includes(s)} onChange={() => toggleSkill(s)}>{s}</Checkbox>
+            <Checkbox key={s} checked={filters.skills.includes(s)} onChange={() => toggleSkill(s)}>{s}</Checkbox>
           ))}
           <button
             onClick={() => setShowAllSkills(!showAllSkills)}
@@ -153,22 +325,56 @@ function TalentFilters() {
       <FilterGroup title="Talent type">
         <div className="space-y-2.5">
           {['Freelancers & Agencies', 'Freelancers', 'Agencies'].map((t) => (
-            <Radio key={t} checked={type === t.toLowerCase()} onChange={() => setType(t.toLowerCase())}>
+            <Radio key={t} name="t-type" checked={filters.type === t.toLowerCase()} onChange={() => setField('type', t.toLowerCase())}>
               {t}
             </Radio>
           ))}
         </div>
         <div className="space-y-2.5 mt-3 pt-3 border-t border-dark-800">
-          <Checkbox>Open to contract-to-hire</Checkbox>
-          <Checkbox>Offers consultations</Checkbox>
+          <Checkbox checked={filters.contractToHire} onChange={() => setField('contractToHire', !filters.contractToHire)}>
+            Open to contract-to-hire
+          </Checkbox>
+          <Checkbox checked={filters.consultations} onChange={() => setField('consultations', !filters.consultations)}>
+            Offers consultations
+          </Checkbox>
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Job success" />
-      <FilterGroup title="Earned amount" />
-      <FilterGroup title="Hours billed" />
-      <FilterGroup title="English level" />
-      <FilterGroup title="Other languages" />
+      <FilterGroup title="Job success">
+        <div className="space-y-2.5">
+          {JOB_SUCCESS_OPTS.map((j) => (
+            <Radio key={j} name="job-success" checked={filters.jobSuccess === j} onChange={() => setField('jobSuccess', j)}>{j}</Radio>
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="Earned amount">
+        <div className="space-y-2.5">
+          {EARNED_OPTS.map((e) => (
+            <Radio key={e} name="earned" checked={filters.earned === e} onChange={() => setField('earned', e)}>{e}</Radio>
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="Hours billed">
+        <div className="space-y-2.5">
+          {HOURS_OPTS.map((h) => (
+            <Radio key={h} name="hours" checked={filters.hours === h} onChange={() => setField('hours', h)}>{h}</Radio>
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="English level">
+        <div className="space-y-2.5">
+          {ENGLISH_OPTS.map((l) => (
+            <Radio key={l} name="english" checked={filters.english === l} onChange={() => setField('english', l)}>{l}</Radio>
+          ))}
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="Other languages">
+        <Select placeholder="Select other languages" />
+      </FilterGroup>
     </aside>
   );
 }
@@ -297,7 +503,7 @@ function Checkbox({ checked, onChange, children, sub }) {
   );
 }
 
-function Radio({ checked, onChange, children }) {
+function Radio({ checked, onChange, children, name }) {
   return (
     <label className="flex items-center gap-2.5 cursor-pointer group text-xs">
       <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-all ${
@@ -305,7 +511,7 @@ function Radio({ checked, onChange, children }) {
       }`}>
         {checked && <span className="w-2 h-2 rounded-full bg-primary-500" />}
       </span>
-      <input type="radio" checked={checked} onChange={onChange} className="hidden" />
+      <input type="radio" name={name} checked={checked} onChange={onChange} className="hidden" />
       <span className="text-dark-200 group-hover:text-dark-100">{children}</span>
     </label>
   );
@@ -411,6 +617,108 @@ const FAKE_PORTFOLIO = [
   { title: 'Looker Studio Dashboards', tag: 'Reporting' },
 ];
 
+/* ─── Talent/Jobs dropdown ─────────────────────────────────── */
+function SearchTypeDropdown({ tab, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
+  const label = tab === 'jobs' ? 'Jobs' : 'Talent';
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 px-4 py-3 rounded-full border border-dark-700 bg-dark-900 text-xs font-semibold text-dark-100 hover:border-dark-600 transition-colors"
+      >
+        {label}
+        <ChevronDown className={`w-3 h-3 text-dark-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-32 rounded-xl border border-dark-700 bg-dark-900 overflow-hidden shadow-xl z-10">
+          {['talent', 'jobs'].map((t) => (
+            <button
+              key={t}
+              onClick={() => { onChange(t); setOpen(false); }}
+              className={`w-full text-left px-4 py-2 text-xs capitalize transition-colors hover:bg-dark-800 ${
+                tab === t ? 'text-dark-100 font-bold' : 'text-dark-300'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Reusable blocks shown across panel tabs ──────────────── */
+function PortfolioBlock({ portfolio, count }) {
+  return (
+    <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
+      <h3 className="text-base font-bold font-display text-dark-100 mb-5">Portfolio ({count})</h3>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {portfolio.map((item) => (
+          <div key={item.title} className="rounded-xl overflow-hidden border border-dark-800 bg-dark-950">
+            <div className={`aspect-video bg-gradient-to-br ${item.gradient || 'from-primary-500/30 to-accent-500/30'}`} />
+            <div className="p-3">
+              <div className="text-xs font-bold text-dark-100 mb-1.5">{item.title}</div>
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-2xs font-semibold">{item.tag}</span>
+                {item.tags && <span className="px-2 py-0.5 rounded-full bg-dark-800 text-dark-400 text-2xs font-semibold">{item.tags}</span>}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div className="rounded-xl border border-dark-800 bg-dark-950 flex flex-col items-center justify-center p-6 text-center min-h-[160px]">
+          <div className="text-xs text-dark-300 mb-3">Want to see more?</div>
+          <Link to="/register" className="px-4 py-1.5 rounded-full border border-primary-500/40 text-primary-300 text-xs font-semibold hover:bg-primary-500/10 transition-all">
+            Sign up
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SkillsBlock({ skills, talent }) {
+  const list = skills || (talent?.skills || []).filter((s) => !s.startsWith('+'));
+  if (list.length === 0) return null;
+  return (
+    <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
+      <h3 className="text-base font-bold font-display text-dark-100 mb-4">Skills</h3>
+      <div className="flex flex-wrap gap-2">
+        {list.map((s) => (
+          <span key={s} className="px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-2xs font-semibold">{s}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SearchOtherTalentBlock({ items }) {
+  return (
+    <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
+      <h3 className="text-base font-bold font-display text-dark-100 mb-4">Search for other talent</h3>
+      <div className="relative mb-5">
+        <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dark-500" />
+        <input placeholder="Search" className="w-full pl-9 pr-3 py-2.5 rounded-full border border-dark-700 bg-dark-950 text-xs text-dark-100 placeholder:text-dark-500 focus:outline-none focus:border-primary-500/50 transition-colors" />
+      </div>
+      <div className="text-sm font-bold text-dark-100 mb-3">Browse similar freelancers</div>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2">
+        {(items || ['Data Entry Specialists', 'Excel Experts', 'Administrative Assistants', 'Google Docs Experts', 'Verification Specialists']).map((s) => (
+          <a key={s} href="#" className="text-xs text-primary-400 hover:text-primary-300 underline underline-offset-2">{s}</a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function ProfilePanel({ talent, onClose }) {
   const [tab, setTab] = useState('About');
   const [fbPage, setFbPage] = useState(1);
@@ -421,7 +729,12 @@ function ProfilePanel({ talent, onClose }) {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const titleStats = { jobs: 70, hours: 395, rating: 4.9, reviews: 43, jobSuccess: talent.jobSuccess || 98 };
+  const p = talent.profile || {};
+  const feedback   = p.feedback     || FAKE_FEEDBACK;
+  const jobs       = p.completedJobs || FAKE_JOBS;
+  const portfolio  = p.portfolio    || FAKE_PORTFOLIO;
+  const titleStats = p.stats || { jobs: 70, hours: 395, rating: 4.9, reviews: 43, jobSuccess: talent.jobSuccess || 98 };
+  const totalPages = Math.max(1, Math.ceil(feedback.length / 2));
 
   return (
     <>
@@ -486,7 +799,7 @@ function ProfilePanel({ talent, onClose }) {
 
               <div className="text-2xs text-dark-500 flex items-center justify-center md:justify-start gap-1.5 mb-5">
                 <MapPin className="w-3 h-3" />
-                {talent.country} <span className="text-dark-700">·</span> 7:37 am local time
+                {p.city || talent.country} <span className="text-dark-700">·</span> {p.localTime || '7:37 am local time'}
               </div>
 
               {/* Stats blocks */}
@@ -551,9 +864,9 @@ function ProfilePanel({ talent, onClose }) {
 
                 {/* Client feedback */}
                 <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
-                  <h3 className="text-base font-bold font-display text-dark-100 mb-5">Client feedback ({FAKE_FEEDBACK.length * 7 + 1})</h3>
+                  <h3 className="text-base font-bold font-display text-dark-100 mb-5">Client feedback ({feedback.length})</h3>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {FAKE_FEEDBACK.slice((fbPage - 1) * 2, fbPage * 2).map((f, i) => (
+                    {feedback.slice((fbPage - 1) * 2, fbPage * 2).map((f, i) => (
                       <div key={i} className="rounded-xl border border-dark-800 bg-dark-950 p-4">
                         <div className="text-xs font-bold text-dark-100 line-clamp-1 mb-2">{f.title}</div>
                         <div className="flex items-center gap-2 text-2xs text-dark-500 mb-2">
@@ -583,7 +896,7 @@ function ProfilePanel({ talent, onClose }) {
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    {[1, 2, 3, 4].map((n) => (
+                    {Array.from({ length: totalPages }, (_, k) => k + 1).map((n) => (
                       <button
                         key={n}
                         onClick={() => setFbPage(n)}
@@ -594,10 +907,9 @@ function ProfilePanel({ talent, onClose }) {
                         {n}
                       </button>
                     ))}
-                    <span className="text-xs text-dark-500 px-1">...</span>
                     <button
-                      onClick={() => setFbPage((p) => Math.min(4, p + 1))}
-                      disabled={fbPage === 4}
+                      onClick={() => setFbPage((page) => Math.min(totalPages, page + 1))}
+                      disabled={fbPage === totalPages}
                       className="w-7 h-7 rounded-full hover:bg-dark-800 flex items-center justify-center text-dark-300 disabled:opacity-30"
                     >
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -622,10 +934,10 @@ function ProfilePanel({ talent, onClose }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-sm font-bold text-dark-100 mb-3 pb-2 border-b border-dark-800">
-                    Completed jobs <span className="text-dark-500 font-normal">{FAKE_JOBS.length * 17}</span>
+                    Completed jobs <span className="text-dark-500 font-normal">{jobs.length}</span>
                   </div>
                   <div className="space-y-3">
-                    {FAKE_JOBS.map((j, i) => (
+                    {jobs.map((j, i) => (
                       <div key={i} className="text-xs">
                         <div className="flex items-start justify-between gap-3">
                           <div className="font-semibold text-dark-100 flex-1">{j.title}</div>
@@ -646,7 +958,7 @@ function ProfilePanel({ talent, onClose }) {
               <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
                 <h3 className="text-base font-bold font-display text-dark-100 mb-5">All client feedback</h3>
                 <div className="space-y-4">
-                  {FAKE_FEEDBACK.map((f, i) => (
+                  {feedback.map((f, i) => (
                     <div key={i} className="pb-4 border-b border-dark-800 last:border-b-0">
                       <div className="flex items-start justify-between gap-3 mb-1.5">
                         <div className="text-sm font-bold text-dark-100">{f.title}</div>
@@ -664,52 +976,67 @@ function ProfilePanel({ talent, onClose }) {
 
             {/* Work history tab */}
             {tab === 'Work history' && (
-              <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
-                <h3 className="text-base font-bold font-display text-dark-100 mb-5">Completed jobs</h3>
-                <div className="space-y-4">
-                  {FAKE_JOBS.map((j, i) => (
-                    <div key={i} className="pb-4 border-b border-dark-800 last:border-b-0">
-                      <div className="flex items-start justify-between gap-3 mb-1">
-                        <div className="text-sm font-semibold text-dark-100">{j.title}</div>
-                        <span className="inline-flex items-center gap-1 text-xs text-dark-300 font-bold shrink-0">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" /> {j.rating.toFixed(1)}
-                        </span>
+              <div className="space-y-5">
+                <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
+                  <h3 className="text-base font-bold font-display text-dark-100 mb-1">Completed jobs <span className="text-dark-500 font-normal text-sm ml-1">{jobs.length}</span></h3>
+                  <div className="h-0.5 w-24 bg-dark-100 mt-2 mb-5" />
+                  <div className="space-y-5">
+                    {jobs.map((j, i) => (
+                      <div key={i} className="pb-5 border-b border-dark-800 last:border-b-0">
+                        <div className="flex items-start justify-between gap-3 mb-1">
+                          <div className="text-sm font-semibold text-dark-100">{j.title}</div>
+                          <span className="inline-flex items-center gap-1 text-xs text-dark-300 font-bold shrink-0">
+                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" /> {j.rating.toFixed(1)}
+                          </span>
+                        </div>
+                        <div className="text-2xs text-dark-500 mb-3">Private earnings · <Calendar className="w-3 h-3 inline" /> {j.dates}</div>
+                        {j.tags && (
+                          <div className="flex items-center gap-1.5 mb-2 overflow-hidden">
+                            <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+                              {j.tags.map((t) => (
+                                <span key={t} className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-2xs font-semibold whitespace-nowrap">{t}</span>
+                              ))}
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-dark-500 shrink-0" />
+                          </div>
+                        )}
+                        {j.desc && (
+                          <p className="text-xs text-dark-400 leading-relaxed mt-2">
+                            <span className="font-semibold text-dark-200">Job description: </span>{j.desc}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-2xs text-dark-500">Private earnings · {j.dates}</div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                    ))}
+                  </div>
+
+                  <div className="pt-5 mt-2 text-xs text-dark-300">
+                    {talent.name} has more jobs.{' '}
+                    <Link to="/register" className="text-primary-400 hover:text-primary-300 font-semibold underline underline-offset-2">
+                      Create an account to review them
+                    </Link>
+                  </div>
+                </section>
+
+                {/* Portfolio appended on Work history tab */}
+                <PortfolioBlock portfolio={portfolio} count={portfolio.length + 1} />
+              </div>
             )}
 
             {/* Portfolio tab */}
             {tab === 'Portfolio' && (
-              <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
-                <h3 className="text-base font-bold font-display text-dark-100 mb-5">Portfolio</h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {FAKE_PORTFOLIO.map((p) => (
-                    <div key={p.title} className="rounded-xl overflow-hidden border border-dark-800 bg-dark-950">
-                      <div className="aspect-video bg-gradient-to-br from-primary-500/30 to-accent-500/30" />
-                      <div className="p-3">
-                        <div className="text-xs font-bold text-dark-100 mb-1">{p.title}</div>
-                        <span className="text-2xs text-primary-400">{p.tag}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <div className="space-y-5">
+                <PortfolioBlock portfolio={portfolio} count={portfolio.length + 1} />
+                <SkillsBlock skills={p.skills} talent={talent} />
+                <SearchOtherTalentBlock items={p.browseSimilar} />
+              </div>
             )}
 
             {/* Skills tab */}
             {tab === 'Skills' && (
-              <section className="rounded-2xl border border-dark-800 bg-dark-900 p-6">
-                <h3 className="text-base font-bold font-display text-dark-100 mb-5">Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {(talent.skills || []).filter((s) => !s.startsWith('+')).concat(['GA4', 'Looker Studio', 'BigQuery', 'Server-side GTM', 'Pixel Setup', 'Conversion API']).map((s) => (
-                    <span key={s} className="px-3 py-1.5 rounded-full bg-dark-800 text-dark-200 text-xs font-medium hover:bg-dark-700 transition-colors">{s}</span>
-                  ))}
-                </div>
-              </section>
+              <div className="space-y-5">
+                <SkillsBlock skills={p.skills} talent={talent} />
+                <SearchOtherTalentBlock items={p.browseSimilar} />
+              </div>
             )}
           </div>
         </div>
@@ -750,6 +1077,8 @@ export default function Search() {
   const [sortBy, setSortBy] = useState('Relevance');
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedTalent, setSelectedTalent] = useState(null);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   useEffect(() => {
     const t = params.get('type');
@@ -775,14 +1104,59 @@ export default function Search() {
 
   const filteredTalent = useMemo(() => {
     const q = (query || '').toLowerCase().trim();
-    if (!q) return TALENT;
-    return TALENT.filter((t) =>
-      t.name.toLowerCase().includes(q) ||
-      t.title.toLowerCase().includes(q) ||
-      t.skills.join(' ').toLowerCase().includes(q) ||
-      t.bio.toLowerCase().includes(q)
-    );
-  }, [query]);
+    return TALENT.filter((t) => {
+      /* Text query — name / title / skills / bio */
+      if (q) {
+        const blob = `${t.name} ${t.title} ${t.skills.join(' ')} ${t.bio}`.toLowerCase();
+        if (!blob.includes(q)) return false;
+      }
+
+      /* Talent badge — derived from job success */
+      if (filters.badges.length > 0) {
+        const badge = getBadge(t);
+        if (!filters.badges.includes(badge)) return false;
+      }
+
+      /* Skill filters — match any selected skill against talent skills (case-insensitive) */
+      if (filters.skills.length > 0) {
+        const tSkills = (t.skills || []).map((s) => s.toLowerCase());
+        const hasAny = filters.skills.some((fs) => tSkills.some((ts) => ts.includes(fs.toLowerCase())));
+        if (!hasAny) return false;
+      }
+
+      /* Consultations / contract-to-hire */
+      if (filters.consultations && !t.consultations) return false;
+      if (filters.contractToHire && !t.contractToHire) return false;
+
+      /* Job success */
+      if (filters.jobSuccess === '80% & up' && (t.jobSuccess || 0) < 80) return false;
+      if (filters.jobSuccess === '90% & up' && (t.jobSuccess || 0) < 90) return false;
+
+      /* Earned amount */
+      const earned = parseEarned(t.earned);
+      if (filters.earned === '$1+ earned'   && earned < 1)      return false;
+      if (filters.earned === '$100+ earned' && earned < 100)    return false;
+      if (filters.earned === '$1K+ earned'  && earned < 1_000)  return false;
+      if (filters.earned === '$10K+ earned' && earned < 10_000) return false;
+      if (filters.earned === 'No earnings yet' && earned > 0)   return false;
+
+      return true;
+    });
+  }, [query, filters]);
+
+  /* Active filter chip list — for the strip under the tabs */
+  const activeChips = useMemo(() => {
+    const out = [];
+    filters.badges.forEach((b) => out.push({ key: `b-${b}`, label: b, remove: () => setFilters((f) => ({ ...f, badges: f.badges.filter((x) => x !== b) })) }));
+    filters.skills.forEach((s) => out.push({ key: `s-${s}`, label: s, remove: () => setFilters((f) => ({ ...f, skills: f.skills.filter((x) => x !== s) })) }));
+    if (filters.consultations)  out.push({ key: 'consul', label: 'Offers consultations', remove: () => setFilters((f) => ({ ...f, consultations: false })) });
+    if (filters.contractToHire) out.push({ key: 'cth',    label: 'Contract-to-hire',     remove: () => setFilters((f) => ({ ...f, contractToHire: false })) });
+    if (filters.jobSuccess !== 'Any job success')  out.push({ key: 'js',  label: filters.jobSuccess, remove: () => setFilters((f) => ({ ...f, jobSuccess: 'Any job success' })) });
+    if (filters.earned     !== 'Any amount earned') out.push({ key: 'er',  label: filters.earned,     remove: () => setFilters((f) => ({ ...f, earned: 'Any amount earned' })) });
+    if (filters.hours      !== 'Any hours')         out.push({ key: 'hr',  label: filters.hours,      remove: () => setFilters((f) => ({ ...f, hours: 'Any hours' })) });
+    if (filters.english    !== 'Any level')         out.push({ key: 'en',  label: filters.english,    remove: () => setFilters((f) => ({ ...f, english: 'Any level' })) });
+    return out;
+  }, [filters]);
 
   const filteredJobs = useMemo(() => {
     const q = (query || '').toLowerCase().trim();
@@ -817,7 +1191,7 @@ export default function Search() {
       {/* Search bar + tabs */}
       <section className="container-custom pt-8 pb-2">
         <div className="flex items-center gap-4">
-          <form onSubmit={onSearch} className="flex-1 relative">
+          <form onSubmit={onSearch} className="flex-1 relative max-w-2xl">
             <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
             <input
               value={query}
@@ -832,6 +1206,10 @@ export default function Search() {
               </button>
             )}
           </form>
+
+          {/* Talent / Jobs dropdown */}
+          <SearchTypeDropdown tab={tab} onChange={switchTab} />
+
           <Link to="/jobs" className="text-xs font-semibold text-primary-400 hover:text-primary-300 underline underline-offset-4 shrink-0">
             Advanced search
           </Link>
@@ -848,6 +1226,25 @@ export default function Search() {
             </button>
           ))}
         </div>
+
+        {/* Active filter chips */}
+        {tab === 'talent' && activeChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-5">
+            {activeChips.map((c) => (
+              <button
+                key={c.key}
+                onClick={c.remove}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-dark-100 text-dark-950 text-xs font-semibold hover:bg-dark-200 transition-colors"
+              >
+                {c.label}
+                <X className="w-3 h-3" strokeWidth={2.5} />
+              </button>
+            ))}
+            <button onClick={clearFilters} className="ml-2 text-xs font-semibold text-primary-400 hover:text-primary-300 underline underline-offset-4">
+              Clear filters
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Body grid */}
@@ -856,7 +1253,9 @@ export default function Search() {
 
           {/* Sidebar */}
           <div className="lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto pr-2 scrollbar-none">
-            {tab === 'talent' ? <TalentFilters /> : <JobFilters />}
+            {tab === 'talent'
+              ? <TalentFilters filters={filters} setFilters={setFilters} />
+              : <JobFilters />}
           </div>
 
           {/* Results */}
@@ -883,17 +1282,73 @@ export default function Search() {
 
             {tab === 'talent' ? (
               filteredTalent.length === 0 ? (
-                <EmptyState query={query} kind="talent" />
+                <EmptyState query={query} kind="talent" onClear={activeChips.length > 0 ? clearFilters : null} />
               ) : (
-                filteredTalent.map((t, i) => (
-                  <TalentCard
-                    key={t.name}
-                    t={t}
-                    delay={i * 0.04}
-                    active={selectedTalent?.name === t.name}
-                    onView={() => setSelectedTalent(t)}
-                  />
-                ))
+                <>
+                  <div className="text-2xs text-dark-500 mb-2 mt-1">
+                    Showing <span className="text-dark-200 font-semibold">{filteredTalent.length}</span> {filteredTalent.length === 1 ? 'result' : 'results'}
+                    {query && <> for "<span className="text-dark-200 font-semibold">{query}</span>"</>}
+                  </div>
+
+                  {filteredTalent.slice(0, 12).map((t, i) => (
+                    <TalentCard
+                      key={t.name}
+                      t={t}
+                      delay={i * 0.04}
+                      active={selectedTalent?.name === t.name}
+                      onView={() => setSelectedTalent(t)}
+                    />
+                  ))}
+
+                  {/* People also searched for — only when there's something to suggest */}
+                  {filteredTalent.length > 12 && (
+                    <div className="border-b border-dark-800 py-6">
+                      <h3 className="text-sm font-bold text-dark-100 mb-4">People also searched for</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {PEOPLE_ALSO_SEARCHED.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setQuery(s)}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-full border border-dark-700 bg-dark-900 text-xs text-dark-200 hover:border-primary-500/40 hover:text-primary-300 transition-all text-left"
+                          >
+                            <SearchIcon className="w-3.5 h-3.5 text-dark-500 shrink-0" />
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredTalent.slice(12).map((t, i) => (
+                    <TalentCard
+                      key={t.name}
+                      t={t}
+                      delay={i * 0.04}
+                      active={selectedTalent?.name === t.name}
+                      onView={() => setSelectedTalent(t)}
+                    />
+                  ))}
+
+                  {/* Pagination */}
+                  <div className="flex items-center justify-center gap-1.5 mt-8">
+                    <button className="w-8 h-8 rounded-full hover:bg-dark-800 flex items-center justify-center text-dark-300 disabled:opacity-30" disabled>
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    {[1, 2, 3].map((n) => (
+                      <button
+                        key={n}
+                        className={`w-8 h-8 rounded-full text-xs font-semibold transition-colors ${
+                          n === 1 ? 'border border-dark-100 text-dark-100' : 'text-dark-400 hover:bg-dark-800 hover:text-dark-100'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                    <button className="w-8 h-8 rounded-full hover:bg-dark-800 flex items-center justify-center text-dark-300">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </>
               )
             ) : (
               filteredJobs.length === 0 ? (
@@ -927,7 +1382,7 @@ export default function Search() {
   );
 }
 
-function EmptyState({ query, kind }) {
+function EmptyState({ query, kind, onClear }) {
   return (
     <div className="text-center py-20">
       <div className="w-14 h-14 rounded-full bg-dark-900 border border-dark-800 flex items-center justify-center mx-auto mb-4">
@@ -936,7 +1391,15 @@ function EmptyState({ query, kind }) {
       <p className="text-sm font-semibold text-dark-200">
         No {kind} match {query ? `"${query}"` : 'your filters'} yet
       </p>
-      <p className="text-xs text-dark-500 mt-1">Try a different keyword or remove some filters.</p>
+      <p className="text-xs text-dark-500 mt-1 mb-4">Try a different keyword or remove some filters.</p>
+      {onClear && (
+        <button
+          onClick={onClear}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 hover:shadow-glow transition-all"
+        >
+          Clear all filters
+        </button>
+      )}
     </div>
   );
 }

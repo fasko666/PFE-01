@@ -37,6 +37,7 @@ export default function GoogleCallback() {
         toast.success(`Welcome, ${user.name?.split(' ')[0]}!`);
         if (user.role === 'admin')        navigate('/admin/dashboard', { replace: true });
         else if (user.role === 'client')  navigate('/client/dashboard', { replace: true });
+        else if (!user.onboarding_completed) navigate('/onboarding', { replace: true });
         else                              navigate('/freelancer/dashboard', { replace: true });
       } catch {
         setStatus('error');
