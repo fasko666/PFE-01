@@ -136,6 +136,113 @@ class FreelancerController extends Controller
         return response()->json(['data' => $user->fresh(['freelancerProfile', 'skills'])]);
     }
 
+    // ─── Onboarding ──────────────────────────────────────────────────────────
+    public function onboarding(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->role !== 'freelancer') {
+            return response()->json(['message' => 'Only freelancers can complete onboarding'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title'        => 'nullable|string|max:255',
+            'bio'          => 'nullable|string|max:5000',
+            'hourly_rate'  => 'nullable|numeric|min:3|max:999',
+            'category'     => 'nullable|string|max:120',
+            'specialties'  => 'nullable|array',
+            'skills'       => 'nullable|array',
+            'languages'    => 'nullable|array',
+            'experience'   => 'nullable|array',
+            'education'    => 'nullable|array',
+            'country'      => 'nullable|string|max:120',
+            'phone'        => 'nullable|string|max:40',
+            'date_of_birth'=> 'nullable|date',
+            'address'      => 'nullable|array',
+            'avatar'       => 'nullable|string', // base64 data URL or http(s) URL
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
+
+        // ─── 1. Avatar (base64 → stored file, or external URL kept as-is) ───
+        if (!empty($data['avatar'])) {
+            if (str_starts_with($data['avatar'], 'data:')) {
+                $saved = $this->saveBase64Avatar($data['avatar']);
+                if ($saved) $user->avatar = $saved;
+            } elseif (str_starts_with($data['avatar'], 'http')) {
+                $user->avatar = $data['avatar'];
+            }
+        }
+
+        // ─── 2. User fields (country, phone) ───
+        if (isset($data['country'])) $user->country = $data['country'];
+        if (isset($data['phone']))   $user->phone   = $data['phone'];
+        $user->save();
+
+        // ─── 3. Freelancer profile fields ───
+        $profileData = array_filter([
+            'title'                => $data['title']        ?? null,
+            'bio'                  => $data['bio']          ?? null,
+            'hourly_rate'          => $data['hourly_rate']  ?? null,
+            'category'             => $data['category']     ?? null,
+            'specialties'          => isset($data['specialties']) ? $data['specialties'] : null,
+            'languages'            => isset($data['languages'])   ? $data['languages']   : null,
+            'experience'           => isset($data['experience'])  ? $data['experience']  : null,
+            'education'            => isset($data['education'])   ? $data['education']   : null,
+            'date_of_birth'        => $data['date_of_birth'] ?? null,
+            'address'              => isset($data['address']) ? $data['address'] : null,
+            'onboarding_completed' => true,
+        ], fn($v) => !is_null($v));
+
+        // Only set columns that actually exist (graceful if migration hasn't been run)
+        $columns = \Schema::getColumnListing('freelancer_profiles');
+        $profileData = array_intersect_key($profileData, array_flip($columns));
+
+        $user->freelancerProfile()->updateOrCreate(['user_id' => $user->id], $profileData);
+
+        // ─── 4. Skills ─── sync by name (creates new ones if missing)
+        if (!empty($data['skills']) && is_array($data['skills'])) {
+            $syncData = [];
+            foreach ($data['skills'] as $name) {
+                if (!is_string($name) || trim($name) === '') continue;
+                $skill = Skill::firstOrCreate(
+                    ['name' => trim($name)],
+                    ['slug' => \Illuminate\Support\Str::slug($name), 'is_active' => true]
+                );
+                $syncData[$skill->id] = ['level' => 'intermediate'];
+            }
+            $user->skills()->syncWithoutDetaching($syncData);
+        }
+
+        $fresh = $user->fresh(['freelancerProfile', 'skills']);
+
+        return response()->json([
+            'message' => 'Onboarding complete',
+            'data'    => $fresh,
+        ]);
+    }
+
+    // ─── Helper — same shape as AuthController's, kept private here ──────────
+    private function saveBase64Avatar(string $base64): ?string
+    {
+        try {
+            if (!str_contains($base64, ',')) return null;
+            $data    = explode(',', $base64, 2)[1];
+            $decoded = base64_decode($data);
+            if (!$decoded) return null;
+
+            $filename = 'avatars/' . \Illuminate\Support\Str::uuid() . '.jpg';
+            \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $decoded);
+            return $filename;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function addSkills(Request $request): JsonResponse
     {
         $user = $request->user();
