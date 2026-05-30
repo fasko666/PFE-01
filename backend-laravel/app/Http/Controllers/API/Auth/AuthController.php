@@ -332,6 +332,7 @@ class AuthController extends Controller
             'phone_verified'   => (bool) $user->phone_verified,
             'google_connected' => !is_null($user->google_id),
             'created_at'       => $user->created_at,
+            'onboarding_completed' => (bool) optional($user->freelancerProfile)->onboarding_completed,
         ];
 
         if ($user->relationLoaded('freelancerProfile') && $user->freelancerProfile) {

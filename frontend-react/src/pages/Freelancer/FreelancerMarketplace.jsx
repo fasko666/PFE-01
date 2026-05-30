@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, MapPin, Star, Award, ChevronLeft, ChevronRight,
@@ -34,12 +34,13 @@ function StarRating({ rating, count }) {
 
 export default function FreelancerMarketplace() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [freelancers, setFreelancers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState({});
 
   const [filters, setFilters] = useState({
-    search: '',
+    search: params.get('search') || '',
     skill: '',
     min_rate: '',
     max_rate: '',
@@ -49,6 +50,12 @@ export default function FreelancerMarketplace() {
     sort: 'rating',
     page: 1,
   });
+
+  /* Re-seed search when URL changes (e.g. navbar search from another page) */
+  useEffect(() => {
+    const urlSearch = params.get('search') || '';
+    setFilters((f) => f.search === urlSearch ? f : { ...f, search: urlSearch, page: 1 });
+  }, [params]);
 
   const fetchFreelancers = useCallback(async (f = filters) => {
     setLoading(true);
@@ -66,7 +73,7 @@ export default function FreelancerMarketplace() {
     }
   }, []);
 
-  useEffect(() => { fetchFreelancers(filters); }, [filters.page, filters.top_rated, filters.sort, filters.experience_level]);
+  useEffect(() => { fetchFreelancers(filters); }, [filters.page, filters.top_rated, filters.sort, filters.experience_level, filters.search]);
 
   const update = (k, v) => setFilters((f) => ({ ...f, [k]: v, page: 1 }));
 

@@ -372,7 +372,7 @@ export default function SuccessStories() {
                 <span className="font-black font-display text-dark-100 text-base tracking-widest uppercase">PANDA</span>
               </div>
               <p className="text-xs text-dark-500 max-w-xs leading-relaxed">
-                The AI-powered freelance marketplace that matches world-class talent with innovative businesses globally.
+                The modern freelance marketplace that matches world-class talent with innovative businesses globally.
               </p>
             </div>
             {[

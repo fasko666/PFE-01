@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -173,29 +173,62 @@ export default function Onboarding() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await api.post('/profile/onboarding', {
-        category:     form.category,
-        specialties:  form.specialties,
-        skills:       form.skills,
-        title:        form.title,
-        experience:   form.experience,
-        education:    form.education,
-        languages:    form.languages,
-        bio:          form.bio,
-        hourly_rate:  parseFloat(form.hourlyRate || 0),
-        date_of_birth:form.dob,
-        country:      form.country,
+      const payload = {
+        category:      form.category,
+        specialties:   form.specialties,
+        skills:        form.skills,
+        title:         form.title,
+        experience:    form.experience,
+        education:     form.education,
+        languages:     form.languages,
+        bio:           form.bio,
+        hourly_rate:   parseFloat(form.hourlyRate || 0),
+        date_of_birth: form.dob || null,
+        country:       form.country,
         address: { street: form.street, apt: form.apt, city: form.city, state: form.state, zip: form.zip },
-        phone:        `${form.phoneCountry} ${form.phone}`,
-      }).catch(() => null);
-      if (setUser && user) setUser({ ...user, onboarding_completed: true, name: user.name });
+        phone:         `${form.phoneCountry} ${form.phone}`.trim(),
+        avatar:        form.photoUrl || null,
+      };
+
+      const { data } = await api.post('/freelancer/onboarding', payload);
+
+      // Update local store with fresh user (and the new avatar_url if backend stored a new file)
+      const freshUser = data?.data;
+      if (setUser && user) {
+        setUser({
+          ...user,
+          ...(freshUser ? {
+            avatar_url: freshUser.avatar_url ?? user.avatar_url,
+            country:    freshUser.country    ?? user.country,
+            phone:      freshUser.phone      ?? user.phone,
+          } : {}),
+          onboarding_completed: true,
+        });
+      }
+
       toast.success('Profile created!');
       setStep(TOTAL + 1);
-    } catch {
-      toast.error('Could not submit — try again');
+    } catch (err) {
+      const msg = err?.response?.data?.message
+        || (err?.response?.data?.errors && Object.values(err.response.data.errors)[0]?.[0])
+        || 'Could not submit — try again';
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  /* ─── Photo file picker ──────────────────────────────── */
+  const photoInputRef = useRef(null);
+  const openPhotoPicker = () => photoInputRef.current?.click();
+  const onPhotoSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error('Photo must be under 5MB'); return; }
+    if (!file.type.startsWith('image/')) { toast.error('Please choose an image file'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => set({ photoUrl: ev.target.result });
+    reader.readAsDataURL(file);
   };
 
   const activeCat = CATEGORIES.find((c) => c.name === form.category);
@@ -635,24 +668,45 @@ export default function Onboarding() {
 
             <div className="grid md:grid-cols-[180px_1fr] gap-8">
               <div>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onPhotoSelected}
+                />
                 <div className="relative w-32 h-32 mx-auto md:mx-0 rounded-full bg-gradient-to-br from-amber-700/40 to-purple-600/30 flex items-center justify-center overflow-hidden border border-dark-700">
                   {form.photoUrl ? (
-                    <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
+                    <img src={form.photoUrl} className="w-full h-full object-cover" alt="Your profile" />
                   ) : (
                     <Camera className="w-8 h-8 text-dark-400" />
                   )}
-                  <button onClick={() => set({ photoUrl: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'You') + '&background=4361ff&color=fff&size=200&bold=true' })}
-                          className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center ring-2 ring-dark-950 hover:bg-emerald-400 transition-colors">
+                  <button
+                    type="button"
+                    onClick={openPhotoPicker}
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center ring-2 ring-dark-950 hover:bg-emerald-400 transition-colors"
+                  >
                     <Plus className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                   </button>
                 </div>
                 <button
-                  onClick={() => set({ photoUrl: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'You') + '&background=4361ff&color=fff&size=200&bold=true' })}
+                  type="button"
+                  onClick={openPhotoPicker}
                   className="mt-4 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-primary-500/40 text-primary-300 text-xs font-semibold hover:bg-primary-500/10 transition-all"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Pencil className="w-3 h-3" />
                   {form.photoUrl ? 'Edit photo' : 'Upload photo'}
                 </button>
+                {form.photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => set({ photoUrl: '' })}
+                    className="mt-2 block text-xs text-dark-500 hover:text-red-400 mx-auto md:mx-0"
+                  >
+                    Remove photo
+                  </button>
+                )}
+                <p className="text-2xs text-dark-500 mt-3 max-w-[180px]">250×250 min · 5MB max. JPG, PNG.</p>
               </div>
 
               <div className="space-y-5">

@@ -32,9 +32,9 @@ const PLANS = [
     feeNote: 'service fee',
     example: 'For example, a $100 contract would cost $110 in total',
     bullets: [
-      { strong: 'Curated shortlists', text: '— find top talent faster with AI-powered recommendations' },
+      { strong: 'Curated shortlists', text: '— find top talent faster with smart recommendations' },
       { strong: 'Expert-Vetted talent', text: '— access to the top 1% of PANDA talent' },
-      { strong: 'AI-powered hiring', text: '— tools to help you hire faster and with more confidence' },
+      { strong: 'Smart hiring tools', text: '— hire faster and with more confidence' },
       { strong: 'Centralized billing', text: '— keep team spend in one place' },
       { strong: 'Team workspace', text: '— shared hiring with roles and permissions' },
     ],

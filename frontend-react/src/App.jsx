@@ -120,24 +120,26 @@ function AppRoot() {
           <Route path="/onboarding"    element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/auth/callback" element={<GoogleCallback />} />
 
-          {/* App */}
+          {/* ── Public marketplace (no login required) ── */}
+          <Route path="/freelancers"           element={<FreelancerMarketplace />} />
+          <Route path="/freelancers/:username" element={<FreelancerProfile />} />
+          <Route path="/jobs"                  element={<JobsMarketplace />} />
+          <Route path="/jobs/:id"              element={<JobDetail />} />
+
+          {/* App (requires login) */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             {/* Freelancer */}
             <Route path="/freelancer/dashboard" element={<ProtectedRoute roles={['freelancer']}><FreelancerDashboard /></ProtectedRoute>} />
             <Route path="/freelancer/profile"   element={<ProtectedRoute roles={['freelancer']}><FreelancerProfile /></ProtectedRoute>} />
             <Route path="/freelancer/settings"  element={<ProtectedRoute roles={['freelancer']}><FreelancerSettings /></ProtectedRoute>} />
-            <Route path="/freelancers/:username" element={<FreelancerProfile />} />
-            <Route path="/freelancers"           element={<FreelancerMarketplace />} />
 
             {/* Client */}
             <Route path="/client/dashboard" element={<ProtectedRoute roles={['client']}><ClientDashboard /></ProtectedRoute>} />
 
-            {/* Jobs */}
-            <Route path="/jobs"      element={<JobsMarketplace />} />
-            <Route path="/jobs/post" element={<ProtectedRoute roles={['freelancer', 'client']}><PostJob /></ProtectedRoute>} />
-            <Route path="/jobs/:id"  element={<JobDetail />} />
-            <Route path="/my-jobs"   element={<ProtectedRoute roles={['freelancer', 'client']}><MyJobs /></ProtectedRoute>} />
+            {/* Jobs (post + manage require login) */}
+            <Route path="/jobs/post"    element={<ProtectedRoute roles={['freelancer', 'client']}><PostJob /></ProtectedRoute>} />
+            <Route path="/my-jobs"      element={<ProtectedRoute roles={['freelancer', 'client']}><MyJobs /></ProtectedRoute>} />
             <Route path="/my-proposals" element={<ProtectedRoute roles={['freelancer']}><MyProposals /></ProtectedRoute>} />
 
             {/* Other */}

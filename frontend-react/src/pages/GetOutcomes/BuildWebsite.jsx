@@ -178,7 +178,7 @@ const PROJECTS = [
 
 const HOW_IT_WORKS = [
   { icon: PenSquare,  title: 'Browse experts',     desc: 'Answer guided prompts to craft your job post.' },
-  { icon: Users,      title: 'Hire and collaborate', desc: 'AI-powered tools help you hone in on the most qualified fit fast.' },
+  { icon: Users,      title: 'Hire and collaborate', desc: 'Smart tools help you hone in on the most qualified fit fast.' },
   { icon: CheckCircle2, title: 'Drive results',    desc: 'Collaborate, receive work and pay securely.' },
 ];
 

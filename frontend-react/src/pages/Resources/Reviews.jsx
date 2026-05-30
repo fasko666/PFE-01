@@ -75,7 +75,7 @@ const HOW_IT_WORKS = [
 
 const WHY_CHOOSE = [
   {
-    title: 'How PTS blends human empathy with AI-powered dealmaking',
+    title: 'How PTS blends human empathy with smart dealmaking',
     img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&auto=format&fit=crop',
     stats: [{ k: '15%', v: 'increase in deal closure rates' }, { k: 'Faster', v: 'time to close' }],
   },

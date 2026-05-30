@@ -16,6 +16,9 @@ class FreelancerProfile extends Model
         'is_top_rated_plus', 'is_available', 'profile_visibility',
         'languages', 'video_intro', 'linkedin_url', 'github_url',
         'website_url', 'certifications', 'badges',
+        // Onboarding fields
+        'onboarding_completed', 'category', 'specialties',
+        'experience', 'education', 'date_of_birth', 'address',
     ];
 
     protected $casts = [
@@ -27,6 +30,12 @@ class FreelancerProfile extends Model
         'is_available' => 'boolean',
         'hourly_rate' => 'decimal:2',
         'avg_rating' => 'decimal:2',
+        'onboarding_completed' => 'boolean',
+        'specialties' => 'array',
+        'experience'  => 'array',
+        'education'   => 'array',
+        'address'     => 'array',
+        'date_of_birth' => 'date',
     ];
 
     public function user() { return $this->belongsTo(User::class); }

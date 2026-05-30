@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, ChevronDown, LogOut, Settings,
-  Search, UserCircle2,
+  UserCircle2,
   ShieldCheck, BadgeCheck, UserPlus, Sun, Moon, Monitor,
 } from 'lucide-react';
 import PandaLogo from '../ui/PandaLogo';
 import NotificationPanel from '../ui/NotificationPanel';
 import UserAvatar from '../ui/UserAvatar';
+import NavSearch from '../ui/NavSearch';
 import useAuthStore from '../../store/authStore';
 import useNotificationStore from '../../store/notificationStore';
 import useThemeStore from '../../store/themeStore';
@@ -137,8 +138,6 @@ const TALENT_CATS = [
   },
 ];
 
-const SEARCH_TYPES = ['Talent', 'Jobs'];
-
 /* ── Get outcomes mega-menu data ───────────────────────── */
 const GET_OUTCOMES = {
   intro: {
@@ -169,7 +168,7 @@ const FIND_WORK_CATS = [
       { label: 'AI Content Creation',     desc: 'Write and edit AI-assisted content',    href: '/jobs/category/ai-content' },
       { label: 'AI Writing',              desc: 'Write with and about AI',                href: '/jobs/category/ai-writing' },
       { label: 'Chatbot',                 desc: 'Deploy conversational bots',             href: '/jobs/category/chatbot' },
-      { label: 'AI Generated Video',      desc: 'Create AI-powered video content',        href: '/jobs/category/ai-video' },
+      { label: 'AI Generated Video',      desc: 'Create generated video content',         href: '/jobs/category/ai-video' },
       { label: 'Prompt Engineering',      desc: 'Craft prompts for better AI outputs',    href: '/jobs/category/prompt' },
       { label: 'Generative AI',           desc: 'Build with generative AI tools',         href: '/jobs/category/generative-ai' },
       { label: 'Automation',              desc: 'Workflows that cut manual work',         href: '/jobs/category/automation' },
@@ -283,20 +282,18 @@ export default function GlobalNavbar() {
   const { user, token, logout } = useAuthStore();
   const { unreadCount, fetch: fetchNotifs } = useNotificationStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome   = location.pathname === '/';
   const { theme, setTheme } = useThemeStore();
 
   const [openMenu,    setOpenMenu]    = useState(null);
   const [showNotifs,  setShowNotifs]  = useState(false);
   const [activeCat,   setActiveCat]   = useState(0);
   const [onlineMsg,   setOnlineMsg]   = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchType,  setSearchType]  = useState('Talent');
-  const [typeOpen,    setTypeOpen]    = useState(false);
   const [themeOpen,   setThemeOpen]   = useState(false);
 
   const closeTimer = useRef(null);
   const navRef     = useRef(null);
-  const typeRef    = useRef(null);
 
   const isFreelancer = user?.role === 'freelancer';
   const isClient     = user?.role === 'client';
@@ -314,7 +311,6 @@ export default function GlobalNavbar() {
         setOpenMenu(null);
         setShowNotifs(false);
       }
-      if (typeRef.current && !typeRef.current.contains(e.target)) setTypeOpen(false);
     };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
@@ -322,15 +318,6 @@ export default function GlobalNavbar() {
 
   const open  = (name) => { clearTimeout(closeTimer.current); setOpenMenu(name); };
   const close = ()     => { closeTimer.current = setTimeout(() => setOpenMenu(null), 140); };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const q = searchQuery.trim();
-    if (!q) return;
-    const type = searchType === 'Jobs' ? 'jobs' : 'talent';
-    navigate(`/search?q=${encodeURIComponent(q)}&type=${type}`);
-    setSearchQuery('');
-  };
 
   const handleLogout = async () => {
     setOpenMenu(null);
@@ -429,51 +416,12 @@ export default function GlobalNavbar() {
         {/* ── Right side ── */}
         {!token ? (
           <div className="flex items-center gap-2 ml-auto shrink-0">
-            {/* Public search bar */}
-            <form onSubmit={handleSearch} className="hidden md:flex items-center mr-2">
-              <div
-                className="flex items-center bg-dark-900 border border-dark-700 rounded-full overflow-hidden transition-all focus-within:border-dark-500 focus-within:bg-dark-800/80 hover:border-dark-600"
-                style={{ height: 36 }}
-              >
-                <Search className="w-3.5 h-3.5 text-dark-500 ml-3.5 shrink-0" strokeWidth={2} />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  type="text"
-                  placeholder="Search"
-                  className="bg-transparent pl-2 pr-2 text-[13px] text-dark-100 placeholder:text-dark-500 outline-none w-40 lg:w-56"
-                />
-                <div className="relative border-l border-dark-700 h-full flex items-center" ref={typeRef}>
-                  <button
-                    type="button"
-                    onClick={() => setTypeOpen((v) => !v)}
-                    className="flex items-center gap-1 px-3.5 h-full text-[13px] font-medium text-dark-300 hover:bg-dark-700/60 transition-colors"
-                  >
-                    {searchType}
-                    <ChevronDown
-                      className={`w-3 h-3 text-dark-500 transition-transform ${typeOpen ? 'rotate-180' : ''}`}
-                      strokeWidth={2.5}
-                    />
-                  </button>
-                  {typeOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-28 bg-dark-800 border border-dark-700 rounded-xl shadow-float overflow-hidden z-50">
-                      {SEARCH_TYPES.map((t) => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => { setSearchType(t); setTypeOpen(false); }}
-                          className={`w-full text-left px-3 py-2 text-[13px] transition-colors ${
-                            searchType === t ? 'bg-dark-700 font-semibold text-dark-100' : 'text-dark-300 hover:bg-dark-700'
-                          }`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* Public search bar — hidden on home (hero already has one) */}
+            {!isHome && (
+              <div className="hidden md:block mr-2">
+                <NavSearch variant="public" />
               </div>
-            </form>
+            )}
 
             <Link to="/login"
               className="text-[13px] font-medium text-dark-400 hover:text-dark-100 px-4 py-2 rounded-lg hover:bg-dark-800/70 transition-all">
@@ -487,39 +435,12 @@ export default function GlobalNavbar() {
         ) : (
           <div className="flex items-center gap-0.5 ml-auto shrink-0">
 
-            {/* Search */}
-            <form onSubmit={handleSearch} className="hidden lg:flex items-center mr-1.5">
-              <div
-                className="flex items-center bg-dark-800/80 border border-dark-700/80 rounded-lg overflow-hidden transition-all focus-within:border-dark-500 focus-within:bg-dark-800"
-                style={{ height: 34 }}
-              >
-                <Search className="w-3.5 h-3.5 text-dark-500 ml-3 shrink-0" strokeWidth={2} />
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  type="text"
-                  placeholder="Search…"
-                  className="bg-transparent pl-2 pr-2 text-[13px] text-dark-100 placeholder:text-dark-500 outline-none w-36"
-                />
-                <div className="relative border-l border-dark-700/80 h-full flex items-center" ref={typeRef}>
-                  <button type="button" onClick={() => setTypeOpen((v) => !v)}
-                    className="flex items-center gap-1 px-2.5 h-full text-[12px] font-medium text-dark-400 hover:bg-dark-700/60 transition-colors">
-                    {searchType}
-                    <ChevronDown className={`w-3 h-3 text-dark-500 transition-transform ${typeOpen ? 'rotate-180' : ''}`} strokeWidth={2.5} />
-                  </button>
-                  {typeOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-24 bg-dark-800 border border-dark-700 rounded-xl shadow-float overflow-hidden z-50">
-                      {SEARCH_TYPES.map((t) => (
-                        <button key={t} type="button" onClick={() => { setSearchType(t); setTypeOpen(false); }}
-                          className={`w-full text-left px-3 py-2 text-[13px] transition-colors ${searchType === t ? 'bg-dark-700 font-semibold text-dark-100' : 'text-dark-300 hover:bg-dark-700'}`}>
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            {/* Search — hidden on home (hero already has one) */}
+            {!isHome && (
+              <div className="hidden lg:block mr-1.5">
+                <NavSearch variant="compact" />
               </div>
-            </form>
+            )}
 
             {/* Help */}
             <button title="Help"

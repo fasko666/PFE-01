@@ -80,7 +80,7 @@ const NEWS_TABS = ['Press releases', 'Research', 'PANDA in the news'];
 const NEWS = {
   'Press releases': [
     { date: 'May 7, 2026',      title: 'A Message from Hayden Brown, PANDA CEO' },
-    { date: 'May 5, 2026',      title: 'PANDA Updates Spring 2026: AI-Powered Innovations to Help Small Businesses Get Ambitious Work Done' },
+    { date: 'May 5, 2026',      title: 'PANDA Updates Spring 2026: New Innovations to Help Small Businesses Get Ambitious Work Done' },
     { date: 'April 9, 2026',    title: "PANDA's Work Marketplace Comes to ChatGPT" },
     { date: 'February 4, 2026', title: "PANDA's In-Demand Skills 2026: Demand for Top AI Skills More Than Doubles as AI Is Embedded Into Everyday Work" },
   ],
@@ -91,7 +91,7 @@ const NEWS = {
     { date: 'January 9, 2026', title: 'Future of Work Forecast: 5 Trends Reshaping Enterprise Hiring' },
   ],
   'PANDA in the news': [
-    { date: 'May 6, 2026',  title: 'PANDA featured in TechCrunch on AI-powered freelance hiring' },
+    { date: 'May 6, 2026',  title: 'PANDA featured in TechCrunch on the future of freelance hiring' },
     { date: 'April 28, 2026', title: 'Forbes interviews PANDA CEO on the rise of AI work agents' },
     { date: 'April 12, 2026', title: 'Bloomberg: How PANDA is rethinking the future of independent work' },
     { date: 'March 30, 2026', title: 'WIRED profile of PANDA — building the marketplace of tomorrow' },

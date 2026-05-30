@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Freelancer
     Route::prefix('freelancer')->group(function () {
         Route::put('/profile',                  [FreelancerController::class, 'updateProfile']);
+        Route::post('/onboarding',              [FreelancerController::class, 'onboarding']);
         Route::post('/skills',                  [FreelancerController::class, 'addSkills']);
         Route::post('/portfolio',               [FreelancerController::class, 'storePortfolio']);
         Route::delete('/portfolio/{portfolio}', [FreelancerController::class, 'destroyPortfolio']);

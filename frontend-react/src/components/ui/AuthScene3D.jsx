@@ -41,7 +41,7 @@ function Dot({ style, delay = 0, color = 'bg-white/40' }) {
 }
 
 const FEATURES = [
-  { icon: Sparkles,      title: 'AI-Powered Matching', desc: 'Instantly surface the right talent' },
+  { icon: Sparkles,      title: 'Smart Matching',      desc: 'Instantly surface the right talent' },
   { icon: Shield,        title: 'Escrow Protection',   desc: 'Every payment fully secured' },
   { icon: MessageSquare, title: 'Real-time Chat',      desc: 'Collaborate without friction' },
 ];
@@ -133,7 +133,7 @@ export default function AuthScene3D() {
             <span className="text-white/50">freelancing</span> is here
           </h2>
           <p className="text-white/40 text-sm mt-3 max-w-xs leading-relaxed">
-            Join thousands of top professionals on the AI-powered platform that connects talent with opportunity.
+            Join thousands of top professionals on the platform that connects talent with opportunity.
           </p>
         </motion.div>
 
