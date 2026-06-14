@@ -5,7 +5,7 @@ import {
   Bell, ChevronDown, LogOut, Settings,
   UserCircle2, User, TrendingUp, Zap,
   ShieldCheck, BadgeCheck, Sun, Moon, Monitor,
-  Menu, X, Search as SearchIcon, ExternalLink,
+  Menu, X, Search as SearchIcon, ExternalLink, Loader2,
 } from 'lucide-react';
 import PandaLogo from '../ui/PandaLogo';
 import NotificationPanel from '../ui/NotificationPanel';
@@ -14,6 +14,7 @@ import NavSearch from '../ui/NavSearch';
 import useAuthStore from '../../store/authStore';
 import useNotificationStore from '../../store/notificationStore';
 import useThemeStore from '../../store/themeStore';
+import { api } from '../../api';
 import toast from 'react-hot-toast';
 
 /* ── Animation presets ─────────────────────────────────── */
@@ -323,19 +324,20 @@ const WHY_PANDA = {
 
 /* ── Main component ────────────────────────────────────── */
 export default function GlobalNavbar() {
-  const { user, token, logout } = useAuthStore();
+  const { user, token, logout, updateUser } = useAuthStore();
   const { unreadCount, fetch: fetchNotifs } = useNotificationStore();
   const navigate = useNavigate();
   const location = useLocation();
   const isHome   = location.pathname === '/';
   const { theme, setTheme } = useThemeStore();
 
-  const [openMenu,    setOpenMenu]    = useState(null);
-  const [showNotifs,  setShowNotifs]  = useState(false);
-  const [activeCat,   setActiveCat]   = useState(0);
-  const [onlineMsg,   setOnlineMsg]   = useState(true);
-  const [themeOpen,   setThemeOpen]   = useState(false);
-  const [mobileOpen,  setMobileOpen]  = useState(false);
+  const [openMenu,       setOpenMenu]       = useState(null);
+  const [showNotifs,     setShowNotifs]     = useState(false);
+  const [activeCat,      setActiveCat]      = useState(0);
+  const [onlineMsg,      setOnlineMsg]      = useState(user?.is_online ?? true);
+  const [togglingOnline, setTogglingOnline] = useState(false);
+  const [themeOpen,      setThemeOpen]      = useState(false);
+  const [mobileOpen,     setMobileOpen]     = useState(false);
 
   const closeTimer = useRef(null);
   const navRef     = useRef(null);
@@ -373,6 +375,10 @@ export default function GlobalNavbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (user?.is_online !== undefined) setOnlineMsg(!!user.is_online);
+  }, [user?.is_online]);
+
   const handleLogout = async () => {
     setOpenMenu(null);
     setShowNotifs(false);
@@ -380,6 +386,21 @@ export default function GlobalNavbar() {
     await logout();
     toast.success('Logged out successfully');
     navigate('/');
+  };
+
+  const toggleOnline = async () => {
+    const next = !onlineMsg;
+    setOnlineMsg(next);
+    setTogglingOnline(true);
+    try {
+      const res = await api.auth.updateProfile({ is_online: next });
+      updateUser(res.data.user || {});
+    } catch {
+      setOnlineMsg(!next);
+      toast.error('Could not update online status');
+    } finally {
+      setTogglingOnline(false);
+    }
   };
 
   const go = (path) => { setOpenMenu(null); setShowNotifs(false); setMobileOpen(false); navigate(path); };
@@ -643,10 +664,15 @@ export default function GlobalNavbar() {
                         <span className="text-[13px] text-dark-300">Online for messages</span>
                       </div>
                       <button
-                        onClick={() => setOnlineMsg((v) => !v)}
+                        type="button"
+                        onClick={toggleOnline}
+                        disabled={togglingOnline}
                         style={{ width: 36, height: 20 }}
-                        className={`relative rounded-full transition-colors shrink-0 ${onlineMsg ? 'bg-green-500' : 'bg-dark-700'}`}>
-                        <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${onlineMsg ? 'translate-x-[16px]' : 'translate-x-[2px]'}`} />
+                        className={`relative rounded-full transition-colors shrink-0 cursor-pointer disabled:opacity-50 ${onlineMsg ? 'bg-green-500' : 'bg-dark-700'}`}>
+                        {togglingOnline
+                          ? <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-white animate-spin" />
+                          : <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${onlineMsg ? 'translate-x-[16px]' : 'translate-x-[2px]'}`} />
+                        }
                       </button>
                     </div>
 
@@ -656,16 +682,16 @@ export default function GlobalNavbar() {
                       {isFreelancer && (
                         <PRow icon={TrendingUp} label="Stats and trends"  onClick={() => go('/reports')} />
                       )}
-                      <PRow icon={ShieldCheck} label="Account health"    onClick={() => go('/settings')} />
-                      <PRow icon={BadgeCheck}  label="Membership plan"   onClick={() => go('/settings')} />
+                      <PRow icon={ShieldCheck} label="Account health"    onClick={() => go('/account-health')} />
+                      <PRow icon={BadgeCheck}  label="Membership plan"   onClick={() => go('/membership')} />
                       {isFreelancer && (
                         <button
-                          onClick={() => go('/settings')}
+                          onClick={() => go('/connects')}
                           className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-dark-300 hover:bg-dark-800/70 hover:text-dark-100 transition-colors">
                           <Zap className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
                           <span>Connects</span>
                           <span className="ml-auto text-[11px] text-dark-500 font-medium">
-                            {user?.subscription?.connects_balance ?? 0} left
+                            {user?.connects_balance ?? 0} left
                           </span>
                         </button>
                       )}
