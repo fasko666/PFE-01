@@ -171,108 +171,116 @@ export default function TopBar() {
           </button>
 
           <AnimatedDropdown open={profileOpen}>
-            {/* User info */}
-            <div className="px-4 py-3.5 border-b border-dark-800">
-              <div className="flex items-center gap-3">
+
+            {/* ── Header: avatar + name ──────────────────────────── */}
+            <div className="px-5 pt-5 pb-4 border-b border-dark-800/80">
+              <div className="flex items-center gap-3.5">
                 <div className="relative shrink-0">
                   <img
-                    src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=64`}
+                    src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=128`}
                     alt={user?.name}
-                    className="w-10 h-10 rounded-full object-cover ring-1 ring-dark-700"
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-dark-700"
                   />
-                  <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-dark-900 ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-dark-900 transition-colors ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
                 </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold text-dark-100 truncate">{user?.name}</div>
-                  <div className="text-xs text-dark-500 capitalize">{user?.role}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-bold text-dark-50 truncate leading-tight">{user?.name}</div>
+                  <div className="text-[11px] text-primary-400 capitalize font-medium mt-0.5">{user?.role}</div>
+                  <div className="text-[10px] text-dark-500 truncate mt-0.5">{user?.email}</div>
                 </div>
               </div>
-            </div>
 
-            {/* Online for messages toggle */}
-            <div className="px-4 py-2.5 border-b border-dark-800">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
-                  <span className="text-xs text-dark-300">Online for messages</span>
+              {/* Online toggle — inside header */}
+              <div className="flex items-center justify-between mt-3.5 px-3 py-2 rounded-xl bg-dark-800/60">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full shrink-0 transition-colors ${onlineForMsg ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.6)]' : 'bg-dark-600'}`} />
+                  <span className="text-xs text-dark-300 font-medium">Online for messages</span>
                 </div>
                 <button
                   type="button"
                   disabled={togglingOnline}
                   onClick={toggleOnline}
                   aria-label="Toggle online status"
-                  className={`relative w-9 h-5 rounded-full transition-colors shrink-0 disabled:opacity-60 cursor-pointer ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
+                  className={`relative w-10 h-[22px] rounded-full transition-all duration-300 shrink-0 cursor-pointer disabled:opacity-50 ${onlineForMsg ? 'bg-green-500' : 'bg-dark-600'}`}
                 >
                   {togglingOnline
-                    ? <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-white animate-spin" />
-                    : <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${onlineForMsg ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                    ? <Loader2 className="absolute inset-0 m-auto w-3.5 h-3.5 text-white animate-spin" />
+                    : <span className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300 ${onlineForMsg ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
                   }
                 </button>
               </div>
             </div>
 
-            {/* Navigation items */}
-            <div className="py-1.5">
-              <DropItem icon={User}        label="Your profile"     onClick={() => go(isFreelancer ? '/freelancer/profile' : '/settings')} />
-              {isFreelancer && (
-                <DropItem icon={TrendingUp} label="Stats and trends" onClick={() => go('/reports')} />
-              )}
-              <DropItem icon={ShieldCheck} label="Account health"   onClick={() => go('/account-health')} />
-              <DropItem icon={BadgeCheck}  label="Membership plan"  onClick={() => go('/membership')} />
-              {isFreelancer && (
-                <button
-                  type="button"
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800 transition-colors cursor-pointer"
-                  onClick={() => go('/connects')}
-                >
-                  <Zap className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
-                  <span>Connects</span>
-                  <span className="ml-auto text-xs text-dark-500 font-medium">
-                    {user?.connects_balance ?? 0} left
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* Theme switcher */}
-            <div className="px-4 py-2.5 border-t border-dark-800">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-dark-400">Theme</span>
-                <span className="text-xs text-dark-500 capitalize">{theme}</span>
-              </div>
-              <div className="flex gap-1">
-                {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+            {/* ── Nav items ──────────────────────────────────────── */}
+            <div className="py-2">
+              <MenuSection>
+                <MenuItem icon={User}        label="Your profile"     onClick={() => go(isFreelancer ? '/freelancer/profile' : '/settings')} />
+                {isFreelancer && <MenuItem icon={TrendingUp} label="Stats and trends" onClick={() => go('/reports')} />}
+                <MenuItem icon={ShieldCheck} label="Account health"   onClick={() => go('/account-health')} />
+                <MenuItem icon={BadgeCheck}  label="Membership plan"  onClick={() => go('/membership')} />
+                {isFreelancer && (
                   <button
-                    key={value}
-                    onClick={() => setTheme(value)}
-                    title={label}
-                    className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs transition-colors ${
-                      theme === value
-                        ? 'bg-primary-500/20 text-primary-400'
-                        : 'text-dark-500 hover:text-dark-200 hover:bg-dark-800'
-                    }`}
+                    type="button"
+                    onClick={() => go('/connects')}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-dark-50 hover:bg-dark-800/80 transition-all rounded-lg mx-1 cursor-pointer group"
+                    style={{ width: 'calc(100% - 8px)' }}
                   >
-                    <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
-                    <span className="hidden sm:inline">{label}</span>
+                    <span className="w-7 h-7 rounded-lg bg-dark-800 group-hover:bg-dark-700 flex items-center justify-center shrink-0 transition-colors">
+                      <Zap className="w-3.5 h-3.5 text-yellow-400" strokeWidth={1.75} />
+                    </span>
+                    <span className="flex-1 text-left font-medium">Connects</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary-500/15 text-primary-400">
+                      {user?.connects_balance ?? 0} left
+                    </span>
                   </button>
-                ))}
+                )}
+              </MenuSection>
+
+              {/* Theme picker */}
+              <div className="mx-3 my-1 px-3 py-2.5 rounded-xl bg-dark-800/40">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-semibold text-dark-400 uppercase tracking-wider">Theme</span>
+                  <span className="text-[11px] text-primary-400 font-medium capitalize">{theme}</span>
+                </div>
+                <div className="flex gap-1.5">
+                  {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setTheme(value)}
+                      title={label}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                        theme === value
+                          ? 'bg-primary-500 text-white shadow-sm'
+                          : 'text-dark-400 hover:text-dark-100 hover:bg-dark-700'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              <MenuSection className="border-t border-dark-800/80 mt-2 pt-2">
+                <MenuItem icon={Settings} label="Account settings" onClick={() => go('/settings')} />
+              </MenuSection>
             </div>
 
-            <div className="py-1.5 border-t border-dark-800">
-              <DropItem icon={Settings} label="Account settings" onClick={() => go('/settings')} />
-            </div>
-
-            <div className="py-1.5 border-t border-dark-800">
+            {/* ── Logout ─────────────────────────────────────────── */}
+            <div className="px-3 pb-3 border-t border-dark-800/80 pt-2">
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer group"
               >
-                <LogOut className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-                Log out
+                <span className="w-7 h-7 rounded-lg bg-dark-800 group-hover:bg-red-500/10 flex items-center justify-center shrink-0 transition-colors">
+                  <LogOut className="w-3.5 h-3.5" strokeWidth={1.75} />
+                </span>
+                <span className="font-medium">Log out</span>
               </button>
             </div>
+
           </AnimatedDropdown>
         </div>
       </div>
@@ -280,23 +288,31 @@ export default function TopBar() {
   );
 }
 
-function DropItem({ icon: Icon, label, onClick }) {
+function MenuItem({ icon: Icon, label, onClick, badge }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800 transition-colors cursor-pointer"
+      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-dark-300 hover:text-dark-50 hover:bg-dark-800/80 transition-all rounded-lg mx-1 cursor-pointer group"
+      style={{ width: 'calc(100% - 8px)' }}
     >
-      <Icon className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
-      {label}
+      <span className="w-7 h-7 rounded-lg bg-dark-800 group-hover:bg-dark-700 flex items-center justify-center shrink-0 transition-colors">
+        <Icon className="w-3.5 h-3.5 text-dark-400 group-hover:text-dark-200" strokeWidth={1.75} />
+      </span>
+      <span className="flex-1 text-left font-medium">{label}</span>
+      {badge && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary-500/15 text-primary-400">{badge}</span>}
     </button>
   );
+}
+
+function MenuSection({ children, className = '' }) {
+  return <div className={`px-2 ${className}`}>{children}</div>;
 }
 
 function AnimatedDropdown({ open, children }) {
   if (!open) return null;
   return (
-    <div className="absolute right-0 top-full mt-1.5 w-64 card shadow-float z-50 animate-scale-in">
+    <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-dark-800/80 bg-dark-900 shadow-[0_8px_32px_rgba(0,0,0,0.4)] z-50 overflow-hidden animate-scale-in">
       {children}
     </div>
   );
