@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -57,7 +58,7 @@ export default function JobProposals() {
   }, [id, page]);
 
   const handleAccept = async (proposal) => {
-    if (!window.confirm(`Accept proposal from ${proposal.freelancer?.name}? This will create a contract.`)) return;
+    if (!await confirm(`Accept proposal from ${proposal.freelancer?.name}? This will create a contract.`, { title: 'Accept Proposal', confirmLabel: 'Accept' })) return;
     setActing(proposal.id);
     try {
       const res = await api.proposals.accept(proposal.id);
@@ -74,7 +75,7 @@ export default function JobProposals() {
   };
 
   const handleReject = async (proposal) => {
-    if (!window.confirm(`Reject proposal from ${proposal.freelancer?.name}?`)) return;
+    if (!await confirm(`Reject proposal from ${proposal.freelancer?.name}?`, { title: 'Reject Proposal', variant: 'danger', confirmLabel: 'Reject' })) return;
     setActing(proposal.id);
     try {
       await api.proposals.reject(proposal.id);

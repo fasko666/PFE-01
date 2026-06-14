@@ -5,9 +5,11 @@ import useAuthStore from './store/authStore';
 import useThemeStore, { applyTheme } from './store/themeStore';
 
 // Layouts
-import AppLayout    from './components/layout/AppLayout';
-import AuthLayout   from './components/layout/AuthLayout';
-import GlobalNavbar from './components/layout/GlobalNavbar';
+import AppLayout     from './components/layout/AppLayout';
+import AuthLayout    from './components/layout/AuthLayout';
+import GlobalNavbar  from './components/layout/GlobalNavbar';
+import MobileBottomNav from './components/layout/MobileBottomNav';
+import ConfirmModal  from './components/ui/ConfirmModal';
 
 // Lazy pages
 const Landing         = lazy(() => import('./pages/Landing/Landing'));
@@ -111,6 +113,8 @@ function AppRoot() {
   return (
     <>
       <GlobalNavbar />
+      <MobileBottomNav />
+      <ConfirmModal />
 
       <Suspense fallback={<PageLoader />}>
         <Routes>

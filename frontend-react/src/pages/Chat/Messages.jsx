@@ -25,11 +25,12 @@ import {
   Wifi, WifiOff, Loader2, Paperclip, Phone, Video,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { api } from '../../api';
+import { api, chatAttachments } from '../../api';
 import useAuthStore from '../../store/authStore';
 import useChatStore from '../../store/chatStore';
 import UserAvatar from '../../components/ui/UserAvatar';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 import {
   getEcho, onConnectionState, refreshEcho,
 } from '../../lib/echo';
@@ -88,6 +89,7 @@ export default function Messages() {
   const messagesEndRef = useRef(null);
   const messagesScrollRef = useRef(null);
   const inputRef       = useRef(null);
+  const fileInputRef   = useRef(null);
   const typingTimerRef = useRef(null);
   const activeIdRef    = useRef(null);
   const messagesRef    = useRef([]);
@@ -337,6 +339,38 @@ export default function Messages() {
     }
   };
 
+  // ── SEND FILE ATTACHMENT ────────────────────────────────────────────────────
+  const sendFile = async (file) => {
+    if (!active || !file) return;
+    const MAX = 25 * 1024 * 1024;
+    if (file.size > MAX) { toast.error('File too large — max 25 MB'); return; }
+
+    const optimistic = {
+      id: `temp-${Date.now()}`,
+      body: '',
+      sender_id: myId,
+      created_at: new Date().toISOString(),
+      _optimistic: true,
+      attachments: [{ name: file.name, mime: file.type, url: null, _uploading: true }],
+    };
+    setMessages((m) => [...m, optimistic]);
+    setSending(true);
+
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await chatAttachments.upload(active.id, fd);
+      const real = { ...res.data.data, content: res.data.data.body };
+      setMessages((m) => dedupeById(m.map((msg) => (msg.id === optimistic.id ? real : msg))));
+    } catch {
+      setMessages((m) => m.filter((msg) => msg.id !== optimistic.id));
+      toast.error('Upload failed');
+    } finally {
+      setSending(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   // Throttled typing pulse — fire once per 2s while typing
   const lastTypingPing = useRef(0);
   const onInputChange = (e) => {
@@ -368,7 +402,7 @@ export default function Messages() {
   };
 
   const deleteMsg = async (m) => {
-    if (!confirm('Delete this message? This cannot be undone.')) return;
+    if (!await confirm('This message will be permanently removed.', { title: 'Delete Message', variant: 'danger' })) return;
     setMessages((prev) => prev.filter((x) => x.id !== m.id));
     try { await api.chat.delete(m.id); }
     catch (err) {
@@ -638,9 +672,41 @@ export default function Messages() {
                             <button onClick={cancelEdit}  className="text-dark-500 hover:text-white p-1"><X className="w-4 h-4" /></button>
                           </div>
                         ) : (
-                          <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed break-words ${isMine ? 'bg-primary-500 text-white rounded-br-sm' : 'bg-dark-800 text-dark-100 rounded-bl-sm border border-dark-700/50'}`}>
-                            {msg.content || msg.body}
-                            {msg.edited_at && <span className="ml-2 text-2xs opacity-60 italic">(edited)</span>}
+                          <div className={`rounded-2xl overflow-hidden ${isMine ? 'bg-primary-500 text-white rounded-br-sm' : 'bg-dark-800 text-dark-100 rounded-bl-sm border border-dark-700/50'}`}>
+                            {/* Text body */}
+                            {(msg.content || msg.body) ? (
+                              <div className="px-3.5 py-2.5 text-sm leading-relaxed break-words">
+                                {msg.content || msg.body}
+                                {msg.edited_at && <span className="ml-2 text-2xs opacity-60 italic">(edited)</span>}
+                              </div>
+                            ) : null}
+                            {/* Attachments */}
+                            {(msg.attachments || []).map((att, ai) => {
+                              const isImg = att.mime?.startsWith('image/');
+                              if (att._uploading) return (
+                                <div key={ai} className="px-3.5 py-2.5 flex items-center gap-2 text-2xs opacity-70">
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                                  <span className="truncate">{att.name}</span>
+                                </div>
+                              );
+                              if (isImg) return (
+                                <a key={ai} href={att.url} target="_blank" rel="noreferrer" className="block">
+                                  <img src={att.url} alt={att.name} className="max-w-[260px] max-h-[260px] object-cover w-full" />
+                                </a>
+                              );
+                              return (
+                                <a key={ai} href={att.url} target="_blank" rel="noreferrer"
+                                  className={`flex items-center gap-2.5 px-3.5 py-2.5 hover:opacity-80 transition-opacity ${isMine ? 'border-t border-primary-400/30' : 'border-t border-dark-700/50'}`}>
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isMine ? 'bg-primary-400/30' : 'bg-dark-700'}`}>
+                                    <Paperclip className="w-3.5 h-3.5" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-2xs font-semibold truncate">{att.name}</p>
+                                    <p className="text-2xs opacity-60">Download</p>
+                                  </div>
+                                </a>
+                              );
+                            })}
                           </div>
                         )}
 
@@ -700,11 +766,22 @@ export default function Messages() {
                   : 'border-dark-700 bg-dark-900 hover:border-dark-600'
               }`}>
 
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="*/*"
+                  onChange={(e) => { if (e.target.files?.[0]) sendFile(e.target.files[0]); }}
+                />
+
                 {/* Attachment button */}
                 <button
                   type="button"
-                  className="w-9 h-9 flex items-center justify-center text-dark-500 hover:text-dark-200 transition-colors shrink-0 mb-0.5 ml-1"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-9 h-9 flex items-center justify-center text-dark-500 hover:text-primary-400 transition-colors shrink-0 mb-0.5 ml-1"
                   title="Attach file"
+                  disabled={sending}
                 >
                   <Paperclip className="w-4 h-4" strokeWidth={2} />
                 </button>

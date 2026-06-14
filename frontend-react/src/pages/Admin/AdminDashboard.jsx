@@ -6,6 +6,7 @@ import {
   TrendingUp, Activity,
 } from 'lucide-react';
 import { api } from '../../api';
+import { confirm } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
 
 const fadeUp = (delay = 0) => ({
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
   };
 
   const banUser = async (userId, userName) => {
-    if (!window.confirm(`Ban user ${userName}?`)) return;
+    if (!await confirm(`Ban "${userName}"? They will lose access to the platform immediately.`, { title: 'Ban User', variant: 'danger', confirmLabel: 'Ban User' })) return;
     try {
       await api.admin.banUser(userId);
       setUsers((u) => u.map((x) => x.id === userId ? { ...x, is_active: false } : x));

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString() : '—';
 const fmtMoney = (n, cur='USD') => `$${Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
@@ -38,7 +39,7 @@ export default function Billing() {
   useEffect(() => { load(); }, []);
 
   const cancel = async () => {
-    if (!confirm('Cancel at the end of the current period? You keep access until then.')) return;
+    if (!await confirm('Your subscription will end at the close of the current billing period. You keep access until then.', { title: 'Cancel Subscription', variant: 'danger', confirmLabel: 'Cancel Subscription' })) return;
     setBusy(true);
     try { await api.billing.cancel(); toast.success('Subscription will end at period close.'); load(); }
     catch (e) { toast.error(e?.response?.data?.message || 'Failed'); }

@@ -114,17 +114,28 @@ class FreelancerController extends Controller
     {
         $user = $request->user();
 
+        $request->validate([
+            'title'        => 'nullable|string|max:255',
+            'bio'          => 'nullable|string|max:5000',
+            'hourly_rate'  => 'nullable|numeric|min:1|max:999',
+            'availability' => 'nullable|in:available,busy,not_available',
+            'country'      => 'nullable|string|max:120',
+            'phone'        => 'nullable|string|max:40',
+        ]);
+
+        $notEmpty = fn($v) => !is_null($v) && $v !== '';
+
         $user->fill(array_filter([
             'country' => $request->country,
             'phone'   => $request->phone,
-        ], fn($v) => !is_null($v)))->save();
+        ], $notEmpty))->save();
 
         $profileData = array_filter([
             'title'        => $request->title,
             'bio'          => $request->bio,
             'hourly_rate'  => $request->hourly_rate,
             'availability' => $request->availability,
-        ], fn($v) => !is_null($v));
+        ], $notEmpty);
 
         if (!empty($profileData)) {
             $user->freelancerProfile()->updateOrCreate(

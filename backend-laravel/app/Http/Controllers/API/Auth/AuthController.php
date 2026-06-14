@@ -164,11 +164,12 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $validator = Validator::make($request->all(), [
-            'name'     => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|unique:users,username,' . $user->id,
-            'country'  => 'sometimes|string',
-            'timezone' => 'sometimes|string',
-            'phone'    => 'sometimes|string',
+            'name'      => 'sometimes|nullable|string|max:255',
+            'username'  => 'sometimes|nullable|string|unique:users,username,' . $user->id,
+            'country'   => 'sometimes|nullable|string|max:120',
+            'timezone'  => 'sometimes|nullable|string|max:80',
+            'phone'     => 'sometimes|nullable|string|max:40',
+            'is_online' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -206,7 +207,7 @@ class AuthController extends Controller
         $path = $this->saveBase64Avatar($request->avatar);
 
         if (!$path) {
-            return response()->json(['message' => 'Invalid image. Use JPG, PNG or WebP under 5 MB.'], 422);
+            return response()->json(['message' => 'Invalid image. Use JPG, PNG or WebP under 10 MB.'], 422);
         }
 
         if ($user->avatar && !str_starts_with($user->avatar, 'http')) {
@@ -367,8 +368,8 @@ class AuthController extends Controller
             $decoded = base64_decode($payload, true);
             if ($decoded === false) return null;
 
-            // Hard size limit: ~5 MB decoded
-            if (strlen($decoded) > 5 * 1024 * 1024) return null;
+            // Hard size limit: ~10 MB decoded
+            if (strlen($decoded) > 10 * 1024 * 1024) return null;
 
             // Verify the bytes are actually an image and the MIME matches what was declared
             $info = @getimagesizefromstring($decoded);

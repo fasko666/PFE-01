@@ -7,6 +7,7 @@ import CreateMilestoneModal from './CreateMilestoneModal';
 import SubmitWorkModal     from './SubmitWorkModal';
 import RejectWorkModal     from './RejectWorkModal';
 import toast from 'react-hot-toast';
+import { confirm } from '../ui/ConfirmModal';
 
 const STATUS_FILTERS = ['all', 'pending', 'in_progress', 'submitted', 'approved', 'rejected', 'paid'];
 
@@ -67,12 +68,12 @@ export default function MilestoneList({ contract, onChanged }) {
     finally { setBusy(false); }
   };
 
-  const approve = (m) => {
-    if (!confirm(`Approve and release $${Number(m.amount).toFixed(2)} to the freelancer?`)) return;
+  const approve = async (m) => {
+    if (!await confirm(`Release $${Number(m.amount).toFixed(2)} to the freelancer? This cannot be undone.`, { title: 'Approve Milestone', confirmLabel: 'Release Funds', variant: 'success' })) return;
     return wrap(api.milestones.approve(m.id), 'Milestone approved & funds released');
   };
-  const remove  = (m) => {
-    if (!confirm('Delete this milestone? This cannot be undone.')) return;
+  const remove  = async (m) => {
+    if (!await confirm('This milestone will be permanently deleted.', { title: 'Delete Milestone', variant: 'danger' })) return;
     return wrap(api.milestones.delete(m.id), 'Milestone deleted');
   };
 

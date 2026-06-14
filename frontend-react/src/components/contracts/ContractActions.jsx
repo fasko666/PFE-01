@@ -3,6 +3,7 @@ import { CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Loader2, Lock, X } f
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { api } from '../../api';
+import { confirm } from '../ui/ConfirmModal';
 import useAuthStore from '../../store/authStore';
 import DisputeModal from './DisputeModal';
 
@@ -31,8 +32,8 @@ export default function ContractActions({ contract, onChanged }) {
     }
   };
 
-  const onComplete = () => {
-    if (!confirm('Complete this contract? Any remaining escrow will be refunded to you.')) return;
+  const onComplete = async () => {
+    if (!await confirm('Any remaining escrow will be refunded to you.', { title: 'Complete Contract', confirmLabel: 'Complete' })) return;
     run('complete', api.contracts.complete(contract.id), 'Contract completed');
   };
 

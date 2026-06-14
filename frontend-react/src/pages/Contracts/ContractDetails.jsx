@@ -7,6 +7,7 @@ import {
   FileText, Activity, Clock, Paperclip, CalendarPlus, BarChart3, Archive, Printer,
 } from 'lucide-react';
 import { api } from '../../api';
+import { confirm } from '../../components/ui/ConfirmModal';
 import useAuthStore from '../../store/authStore';
 import UserAvatar from '../../components/ui/UserAvatar';
 import ContractStatusBadge from '../../components/contracts/ContractStatusBadge';
@@ -59,7 +60,7 @@ export default function ContractDetails() {
   useEffect(() => { load(); }, [load]);
 
   const archive = async () => {
-    if (!confirm('Archive this contract?')) return;
+    if (!await confirm('This contract will be moved to your archive.', { title: 'Archive Contract', confirmLabel: 'Archive' })) return;
     try { await api.contracts.archive(id); toast.success('Archived'); load(); }
     catch (e) { toast.error(e?.response?.data?.message || 'Failed'); }
   };

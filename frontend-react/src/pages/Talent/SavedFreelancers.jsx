@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Loader2, Star, Trash2, ListPlus, Users } from 'lucide-react';
 import { api } from '../../api';
+import { confirm } from '../../components/ui/ConfirmModal';
 import UserAvatar from '../../components/ui/UserAvatar';
 import toast from 'react-hot-toast';
 
@@ -27,7 +28,7 @@ export default function SavedFreelancers() {
   useEffect(() => { load(); }, [load]);
 
   const unsave = async (id) => {
-    if (!confirm('Remove from saved?')) return;
+    if (!await confirm('This freelancer will be removed from your saved list.', { title: 'Remove from Saved', variant: 'danger', confirmLabel: 'Remove' })) return;
     try { await api.savedFreelancers.unsave(id); load(); toast.success('Removed'); }
     catch (e) { toast.error(e?.response?.data?.message || 'Failed'); }
   };

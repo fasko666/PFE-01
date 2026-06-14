@@ -3,6 +3,7 @@ import { Upload, Download, Trash2, FileIcon, History, Loader2 } from 'lucide-rea
 import { api } from '../../api';
 import useAuthStore from '../../store/authStore';
 import toast from 'react-hot-toast';
+import { confirm } from '../ui/ConfirmModal';
 
 const fmtSize = (n) => {
   if (!n) return '0 B';
@@ -47,7 +48,7 @@ export default function FilesTab({ contract }) {
   };
 
   const remove = async (f) => {
-    if (!confirm(`Delete ${f.original_name}?`)) return;
+    if (!await confirm(`Delete "${f.original_name}"? This cannot be undone.`, { title: 'Delete File', variant: 'danger' })) return;
     try { await api.contracts.deleteFile(f.id); await load(); toast.success('Deleted'); }
     catch (err) { toast.error(err?.response?.data?.message || 'Failed'); }
   };

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, ShieldCheck, Loader2, Copy, RefreshCw, AlertTriangle, X, CheckCircle2 } from 'lucide-react';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 
 /**
  * 2FA settings page — flow:
@@ -56,7 +57,7 @@ export default function TwoFactorSettings() {
   };
 
   const regen = async () => {
-    if (!confirm('Regenerate recovery codes? Old codes will stop working.')) return;
+    if (!await confirm('All existing recovery codes will be invalidated immediately.', { title: 'Regenerate Recovery Codes', variant: 'danger', confirmLabel: 'Regenerate' })) return;
     try {
       const { data } = await api.twoFactor.regenerate();
       setRec(data.data);

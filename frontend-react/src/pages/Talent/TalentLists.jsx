@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, ListPlus, Loader2, Trash2, Edit2, Users } from 'lucide-react';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 
 export default function TalentLists() {
   const [rows, setRows] = useState([]);
@@ -30,7 +31,7 @@ export default function TalentLists() {
   };
 
   const remove = async (id) => {
-    if (!confirm('Delete this list?')) return;
+    if (!await confirm('This talent list and all its members will be deleted.', { title: 'Delete List', variant: 'danger' })) return;
     try { await api.talentLists.delete(id); load(); toast.success('Deleted'); }
     catch (e) { toast.error(e?.response?.data?.message || 'Failed'); }
   };

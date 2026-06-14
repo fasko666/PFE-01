@@ -10,6 +10,7 @@ import { api } from '../../api';
 import useAuthStore from '../../store/authStore';
 import UserAvatar from '../../components/ui/UserAvatar';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
 
 /* ── Status config (client view) ── */
 const STATUS_BADGE = {
@@ -465,8 +466,8 @@ function ClientJobPosts() {
                     <Eye className="w-3.5 h-3.5" strokeWidth={1.75} /> View proposals
                   </button>
                   <button
-                    onClick={() => {
-                      if (!window.confirm('Delete this job?')) return;
+                    onClick={async () => {
+                      if (!await confirm('This job and all its proposals will be deleted permanently.', { title: 'Delete Job', variant: 'danger' })) return;
                       api.jobs.delete(job.id)
                         .then(() => { setJobs((p) => p.filter((x) => x.id !== job.id)); toast.success('Job deleted'); })
                         .catch(() => toast.error('Failed to delete'));

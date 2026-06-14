@@ -6,6 +6,7 @@ import {
   Upload, CheckCircle2, XCircle, Edit2, Trash2, Paperclip, User as UserIcon,
 } from 'lucide-react';
 import { api } from '../../api';
+import { confirm } from '../../components/ui/ConfirmModal';
 import useAuthStore from '../../store/authStore';
 import UserAvatar from '../../components/ui/UserAvatar';
 import MilestoneStatusBadge from '../../components/milestones/MilestoneStatusBadge';
@@ -54,7 +55,7 @@ export default function MilestoneDetails() {
   const isFreelancer = Number(user?.id) === Number(contract.freelancer_id);
 
   const approve = async () => {
-    if (!confirm(`Approve and release ${fmtMoney(m.amount)} to the freelancer?`)) return;
+    if (!await confirm(`Release ${fmtMoney(m.amount)} to the freelancer? This cannot be undone.`, { title: 'Approve Milestone', confirmLabel: 'Release Funds', variant: 'success' })) return;
     setBusy(true);
     try { await api.milestones.approve(m.id); toast.success('Milestone approved & funds released'); await load(); }
     catch (e) { toast.error(e?.response?.data?.message || 'Approve failed'); }
@@ -62,7 +63,7 @@ export default function MilestoneDetails() {
   };
 
   const remove = async () => {
-    if (!confirm('Delete this milestone? This cannot be undone.')) return;
+    if (!await confirm('This milestone will be permanently deleted.', { title: 'Delete Milestone', variant: 'danger' })) return;
     setBusy(true);
     try { await api.milestones.delete(m.id); toast.success('Deleted'); }
     catch (e) { toast.error(e?.response?.data?.message || 'Delete failed'); }

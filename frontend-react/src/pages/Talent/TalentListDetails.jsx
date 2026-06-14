@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Loader2, ListPlus, Trash2, Star } from 'lucide-react';
 import { api } from '../../api';
+import { confirm } from '../../components/ui/ConfirmModal';
 import UserAvatar from '../../components/ui/UserAvatar';
 import toast from 'react-hot-toast';
 
@@ -19,7 +20,7 @@ export default function TalentListDetails() {
   useEffect(() => { load(); }, [load]);
 
   const remove = async (fid) => {
-    if (!confirm('Remove freelancer from this list?')) return;
+    if (!await confirm('This freelancer will be removed from the list.', { title: 'Remove Freelancer', variant: 'danger', confirmLabel: 'Remove' })) return;
     try { await api.talentLists.removeMember(id, fid); load(); }
     catch (e) { toast.error(e?.response?.data?.message || 'Failed'); }
   };

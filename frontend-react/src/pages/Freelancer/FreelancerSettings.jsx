@@ -1,15 +1,17 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Briefcase, Settings, Lock, ShieldCheck, Bell,
   ArrowDownToLine, Link2, CheckCircle2, Check, Building2,
   GitBranch, Globe, Sparkles, Eye, EyeOff, AlertTriangle,
-  Phone, Mail,
+  Phone, Mail, Camera, Loader2, Star, Award, MapPin,
 } from 'lucide-react';
 import { api } from '../../api';
 import useAuthStore from '../../store/authStore';
 import UserAvatar from '../../components/ui/UserAvatar';
 import toast from 'react-hot-toast';
+import { confirm } from '../../components/ui/ConfirmModal';
+import { compressImage } from '../../utils/imageCompressor';
 
 const getNav = (role) => [
   {
@@ -212,10 +214,12 @@ export default function FreelancerSettings() {
     setSaving(true);
     try {
       const res = await api.auth.updateProfile(contactForm);
-      updateUser(res.data.data);
+      updateUser(res.data.user || res.data.data || {});
+      setContactForm((f) => ({ ...f, ...contactForm }));
       toast.success('Contact info updated');
-    } catch { toast.error('Failed to update'); }
-    finally { setSaving(false); }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to update');
+    } finally { setSaving(false); }
   };
 
   const changePassword = async (e) => {
@@ -232,16 +236,80 @@ export default function FreelancerSettings() {
     } finally { setSaving(false); }
   };
 
-  const avatar = user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=128`;
+  const avatarInputRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Please choose an image file'); return; }
+    setUploadingAvatar(true);
+    try {
+      const compressed = await compressImage(file);
+      const { data } = await api.auth.updateAvatar({ avatar: compressed });
+      updateUser({ avatar_url: data.avatar_url });
+      toast.success('Photo updated!');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to update photo');
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold font-display text-dark-100 tracking-tight">Settings</h1>
-        <p className="text-sm text-dark-500 mt-1">Manage your account preferences</p>
+    <div className="max-w-5xl mx-auto space-y-5">
+
+      {/* ── Profile header card ─────────────────────────────────────────────── */}
+      <div className="card overflow-hidden">
+        {/* Mini banner */}
+        <div className="relative h-28 bg-gradient-to-br from-primary-900 via-primary-700/60 to-violet-800/50 overflow-hidden">
+          <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-white/5" />
+          <div className="absolute bottom-0 left-1/3 w-20 h-20 rounded-full bg-white/5" />
+          <div className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.15) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+            }}
+          />
+        </div>
+        <div className="px-6 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-10 mb-4">
+            {/* Avatar with upload */}
+            <div className="relative group w-fit shrink-0">
+              <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarChange} />
+              <div className="w-20 h-20 rounded-2xl ring-4 ring-dark-900 overflow-hidden shadow-xl">
+                <UserAvatar user={user} size={80} className="!rounded-2xl w-full h-full object-cover" />
+              </div>
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute inset-0 rounded-2xl flex items-center justify-center bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-wait"
+                title="Change photo"
+              >
+                {uploadingAvatar
+                  ? <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  : <Camera className="w-5 h-5 text-white" />
+                }
+              </button>
+            </div>
+            {/* Role badge */}
+            <span className="sm:mb-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary-500/10 text-primary-400 border border-primary-500/20 capitalize">
+              <Award className="w-3.5 h-3.5" />
+              {user?.role}
+            </span>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-dark-100">{user?.name}</h2>
+            <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-dark-500">
+              <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{user?.email}</span>
+              {user?.country && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{user?.country}</span>}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex gap-5 items-start">
         {/* Left nav */}
         <aside className="w-52 shrink-0 space-y-5">
           {NAV.map((group) => (
@@ -276,17 +344,10 @@ export default function FreelancerSettings() {
         <div className="flex-1 min-w-0">
           <motion.div key={activeKey} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
 
-            {/* â”€â”€ Contact Info â”€â”€ */}
+            {/* ── Contact Info ── */}
             {activeKey === 'contact' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="Contact Info" desc="Update your personal contact information" />
-                <div className="flex items-center gap-4">
-                  <UserAvatar user={user} size={56} className="!rounded-2xl ring-2 ring-dark-700" />
-                  <div>
-                    <p className="font-semibold text-white">{user?.name}</p>
-                    <p className="text-sm text-dark-500 capitalize">{user?.role} Â· {user?.email}</p>
-                  </div>
-                </div>
                 <form onSubmit={saveContact} className="space-y-4">
                   <div>
                     <label className="input-label">Full Name</label>
@@ -308,13 +369,13 @@ export default function FreelancerSettings() {
                     </div>
                   </div>
                   <button type="submit" disabled={saving} className="btn btn-primary">
-                    {saving ? 'Savingâ€¦' : 'Save Changes'}
+                    {saving ? 'Saving…' : 'Save Changes'}
                   </button>
                 </form>
               </div>
             )}
 
-            {/* â”€â”€ My Profile â”€â”€ */}
+            {/* â"€â"€ My Profile â"€â"€ */}
             {activeKey === 'profile' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="My Profile" desc="Clients see this on your public profile page" />
@@ -322,8 +383,19 @@ export default function FreelancerSettings() {
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setSaving(true);
-                    try { await api.freelancers.updateProfile(profileForm); toast.success('Profile updated'); }
-                    catch { toast.error('Failed to update profile'); }
+                    try {
+                      await api.freelancers.updateProfile({
+                        ...profileForm,
+                        hourly_rate: profileSettings.hourly_rate !== '' ? profileSettings.hourly_rate : null,
+                      });
+                      toast.success('Profile updated');
+                    }
+                    catch (err) {
+                      const msg = err?.response?.data?.message
+                        || Object.values(err?.response?.data?.errors || {}).flat()[0]
+                        || 'Failed to update profile';
+                      toast.error(msg);
+                    }
                     finally { setSaving(false); }
                   }}
                   className="space-y-4"
@@ -338,13 +410,13 @@ export default function FreelancerSettings() {
                     <p className="text-xs text-dark-600 mt-1">{profileForm.bio.length}/1000 characters</p>
                   </div>
                   <button type="submit" disabled={saving} className="btn btn-primary">
-                    {saving ? 'Savingâ€¦' : 'Save Profile'}
+                    {saving ? 'Saving…' : 'Save Profile'}
                   </button>
                 </form>
               </div>
             )}
 
-            {/* â”€â”€ Profile Settings â”€â”€ */}
+            {/* â"€â"€ Profile Settings â"€â"€ */}
             {activeKey === 'profile_settings' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="Profile Settings" desc="Control your visibility and work preferences" />
@@ -371,7 +443,7 @@ export default function FreelancerSettings() {
                     <label className="input-label">Availability</label>
                     <select value={profileSettings.availability} onChange={(e) => setProfileSettings({ ...profileSettings, availability: e.target.value })} className="input">
                       <option value="available">Available for work</option>
-                      <option value="busy">Busy â€” not taking new work</option>
+                      <option value="busy">Busy â€" not taking new work</option>
                       <option value="selective">Selectively available</option>
                     </select>
                   </div>
@@ -391,7 +463,7 @@ export default function FreelancerSettings() {
               </div>
             )}
 
-            {/* â”€â”€ Password & Security â”€â”€ */}
+            {/* â"€â"€ Password & Security â"€â"€ */}
             {activeKey === 'password' && (
               <div className="space-y-4">
                 <div className="card p-6 space-y-5">
@@ -413,7 +485,7 @@ export default function FreelancerSettings() {
                       </div>
                     ))}
                     <button type="submit" disabled={saving} className="btn btn-primary">
-                      {saving ? 'Changingâ€¦' : 'Change Password'}
+                      {saving ? 'Changing…' : 'Change Password'}
                     </button>
                   </form>
                 </div>
@@ -437,7 +509,7 @@ export default function FreelancerSettings() {
                   </div>
                   <p className="text-sm text-dark-500">These actions are permanent and cannot be undone.</p>
                   <button
-                    onClick={async () => { if (window.confirm('Sign out of all devices?')) await logout(); }}
+                    onClick={async () => { if (await confirm('You will be signed out from all active sessions on all devices.', { title: 'Sign Out All Devices', variant: 'danger', confirmLabel: 'Sign Out All' })) await logout(); }}
                     className="px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-xl text-sm font-medium transition-all"
                   >
                     Sign out of all devices
@@ -451,7 +523,7 @@ export default function FreelancerSettings() {
               <IdentityVerification user={user} updateUser={updateUser} />
             )}
 
-            {/* â”€â”€ Notification Settings â”€â”€ */}
+            {/* â"€â"€ Notification Settings â"€â"€ */}
             {activeKey === 'notifications' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="Notification Settings" desc="Choose what you want to be notified about" />
@@ -472,7 +544,7 @@ export default function FreelancerSettings() {
               </div>
             )}
 
-            {/* â”€â”€ Membership â”€â”€ */}
+            {/* â"€â"€ Membership â"€â"€ */}
             {activeKey === 'membership' && (
               <div className="space-y-4">
                 <div className="card p-6 space-y-5">
@@ -481,7 +553,7 @@ export default function FreelancerSettings() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-bold text-white text-lg">Free Plan</p>
-                        <p className="text-sm text-dark-400 mt-0.5">10 proposals/month Â· Standard visibility</p>
+                        <p className="text-sm text-dark-400 mt-0.5">10 proposals/month · Standard visibility</p>
                       </div>
                       <span className="text-xs font-semibold bg-dark-800 border border-dark-700 text-dark-300 px-3 py-1.5 rounded-full">Active</span>
                     </div>
@@ -514,7 +586,7 @@ export default function FreelancerSettings() {
               </div>
             )}
 
-            {/* â”€â”€ Withdrawals â”€â”€ */}
+            {/* â"€â"€ Withdrawals â"€â"€ */}
             {activeKey === 'withdrawals' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="Withdrawals" desc="Manage how you receive your earnings" />
@@ -543,13 +615,13 @@ export default function FreelancerSettings() {
               </div>
             )}
 
-            {/* â”€â”€ Connected Services â”€â”€ */}
+            {/* â"€â"€ Connected Services â"€â"€ */}
             {activeKey === 'connected' && (
               <div className="card p-6 space-y-5">
                 <SectionHeader title="Connected Services" desc="Apps and services connected to your account" />
                 <div className="space-y-3">
                   {[
-                    { label: 'Google',   icon: Globe,   desc: 'Sign in with Google Â· SSO' },
+                    { label: 'Google',   icon: Globe,   desc: 'Sign in with Google · SSO' },
                     { label: 'GitHub',   icon: GitBranch, desc: 'Show your repositories on profile' },
                     { label: 'LinkedIn', icon: Globe,   desc: 'Import profile data' },
                   ].map((svc) => {

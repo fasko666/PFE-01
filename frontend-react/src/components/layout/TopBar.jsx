@@ -3,23 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, Bell, Menu, Settings, User, LogOut, ChevronDown,
   TrendingUp, ShieldCheck, BadgeCheck, Zap,
-  MessageSquare,
+  MessageSquare, HelpCircle, Loader2,
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useUIStore from '../../store/uiStore';
 import useNotificationStore from '../../store/notificationStore';
+import { api } from '../../api';
 import toast from 'react-hot-toast';
 
 export default function TopBar() {
-  const { user, logout }           = useAuthStore();
+  const { user, logout, updateUser } = useAuthStore();
   const { toggleSidebar }          = useUIStore();
   const { unreadCount }            = useNotificationStore();
   const navigate                   = useNavigate();
   const [searchQuery, setSearchQuery]   = useState('');
   const [profileOpen, setProfileOpen]   = useState(false);
-  const [onlineForMsg, setOnlineForMsg] = useState(true);
+  const [onlineForMsg, setOnlineForMsg] = useState(user?.is_online ?? true);
+  const [togglingOnline, setTogglingOnline] = useState(false);
   const profileRef = useRef(null);
   const isFreelancer = user?.role === 'freelancer';
+
+  // Keep local toggle in sync if user object changes (e.g. after re-fetch)
+  useEffect(() => {
+    if (user?.is_online !== undefined) setOnlineForMsg(user.is_online);
+  }, [user?.is_online]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -144,12 +151,32 @@ export default function TopBar() {
             {/* Online for messages toggle */}
             <div className="px-4 py-2.5 border-b border-dark-800">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-dark-300">Online for messages</span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
+                  <span className="text-xs text-dark-300">Online for messages</span>
+                </div>
                 <button
-                  onClick={() => setOnlineForMsg((v) => !v)}
-                  className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
+                  disabled={togglingOnline}
+                  onClick={async () => {
+                    const next = !onlineForMsg;
+                    setOnlineForMsg(next);
+                    setTogglingOnline(true);
+                    try {
+                      const res = await api.auth.updateProfile({ is_online: next });
+                      updateUser(res.data.user || {});
+                    } catch {
+                      setOnlineForMsg(!next);
+                      toast.error('Could not update status');
+                    } finally {
+                      setTogglingOnline(false);
+                    }
+                  }}
+                  className={`relative w-9 h-5 rounded-full transition-colors shrink-0 disabled:opacity-60 ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
                 >
-                  <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${onlineForMsg ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                  {togglingOnline
+                    ? <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-white animate-spin" />
+                    : <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${onlineForMsg ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                  }
                 </button>
               </div>
             </div>

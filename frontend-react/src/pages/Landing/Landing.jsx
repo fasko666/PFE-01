@@ -129,7 +129,7 @@ export default function Landing() {
       {/* ── Promo banner ── */}
       {showBanner && (
         <div className="px-4 pt-6 relative z-10">
-          <div className="max-w-5xl mx-auto rounded-2xl bg-gradient-to-r from-primary-500/15 via-accent-500/15 to-primary-500/15 border border-primary-500/30 px-6 py-4 flex items-center gap-4 backdrop-blur-sm">
+          <div className="max-w-[1440px] mx-auto rounded-2xl bg-gradient-to-r from-primary-500/15 via-accent-500/15 to-primary-500/15 border border-primary-500/30 px-6 py-4 flex items-center gap-4 backdrop-blur-sm">
             <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
             </span>
@@ -148,7 +148,7 @@ export default function Landing() {
 
       {/* ── HERO ── */}
       <section className="px-4 pt-6 relative z-10">
-        <div className="max-w-5xl mx-auto relative rounded-[28px] overflow-hidden h-[500px] sm:h-[580px] shadow-[0_30px_80px_-20px_rgba(67,97,255,0.45)]">
+        <div className="max-w-[1440px] mx-auto relative rounded-[28px] overflow-hidden h-[520px] sm:h-[640px] lg:h-[720px] shadow-[0_30px_80px_-20px_rgba(67,97,255,0.45)]">
           <img src={HERO_IMG} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
           {/* Dark + brand-tinted overlays */}
           <div className="absolute inset-0 bg-gradient-to-br from-dark-950/95 via-accent-900/55 to-primary-900/30" />
@@ -224,7 +224,7 @@ export default function Landing() {
 
       {/* ── Trusted by ── */}
       <section className="py-16 px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <p className="text-center text-2xs font-semibold text-dark-500 tracking-[0.2em] uppercase mb-8">Trusted by 800,000 clients</p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 sm:gap-x-14 gap-y-5">
             {BRAND_LOGOS.map((b) => (
@@ -236,7 +236,7 @@ export default function Landing() {
 
       {/* ── Categories ── */}
       <section className="py-12 px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <motion.h2 {...fadeUp(0)} className="text-3xl sm:text-4xl font-bold font-display text-dark-50 mb-10">
             Find experts for every type of work
           </motion.h2>
@@ -264,7 +264,7 @@ export default function Landing() {
 
       {/* ── How it works ── */}
       <section className="py-20 px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <div className="flex items-center justify-between flex-wrap gap-4 mb-10">
             <motion.h2 {...fadeUp(0)} className="text-3xl sm:text-4xl font-bold font-display text-dark-50">How it works</motion.h2>
             <div className="inline-flex rounded-full border border-dark-700 p-1 bg-dark-900">
@@ -305,7 +305,7 @@ export default function Landing() {
 
       {/* ── Pricing insights ── */}
       <section className="py-12 px-4 relative z-10">
-        <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden text-white grid lg:grid-cols-2 min-h-[360px] relative border border-dark-800"
+        <div className="max-w-[1440px] mx-auto rounded-3xl overflow-hidden text-white grid lg:grid-cols-2 min-h-[360px] relative border border-dark-800"
              style={{ background: 'linear-gradient(135deg, #0a0a1c 0%, #1c0f3e 50%, #0a0a1c 100%)' }}>
           <div className="absolute top-0 right-0 w-full h-full opacity-60" style={{
             backgroundImage: 'radial-gradient(circle at 75% 50%, rgba(139,47,255,0.4), transparent 50%), radial-gradient(circle at 25% 80%, rgba(67,97,255,0.3), transparent 50%)',
@@ -359,7 +359,7 @@ export default function Landing() {
         <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 rounded-full bg-primary-500/10 blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 rounded-full bg-accent-500/10 blur-3xl pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto relative z-10">
+        <div className="max-w-[1440px] mx-auto relative z-10">
           <motion.div {...fadeUp(0)} className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl font-bold font-display text-dark-50 mb-3">Choose how you want to hire</h2>
             <p className="text-sm text-dark-400">Flexible options designed to fit your hiring needs</p>
@@ -422,7 +422,7 @@ export default function Landing() {
         <div className="absolute top-20 left-0 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-20 right-0 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto relative z-10">
+        <div className="max-w-[1440px] mx-auto relative z-10">
           <motion.div {...fadeUp(0)} className="flex items-center gap-3 mb-10">
             <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg">
               <Star className="w-5 h-5 text-white" fill="currentColor" />
@@ -451,7 +451,7 @@ export default function Landing() {
 
       {/* ── G2 badges ── */}
       <section className="py-16 px-4 relative z-10">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <motion.div {...fadeUp(0)} className="flex items-center justify-center gap-3 mb-10">
             <Shield className="w-7 h-7 text-primary-400" strokeWidth={1.8} />
             <h2 className="text-2xl sm:text-3xl font-bold font-display text-dark-50">Trusted by growing businesses</h2>
@@ -485,7 +485,7 @@ export default function Landing() {
       {/* ── Final CTA ── */}
       <section className="py-16 px-4 relative z-10">
         <motion.div {...fadeUp(0)}
-          className="max-w-5xl mx-auto rounded-3xl overflow-hidden p-14 text-center relative shadow-2xl"
+          className="max-w-[1440px] mx-auto rounded-3xl overflow-hidden p-14 text-center relative shadow-2xl"
           style={{ background: 'linear-gradient(135deg, #4361ff 0%, #6e3fff 50%, #a855f7 100%)' }}
         >
           <div className="absolute inset-0 opacity-30" style={{
@@ -509,7 +509,7 @@ export default function Landing() {
       {/* ── Footer ── */}
       <footer className="bg-dark-900 border-t border-dark-800 py-14 px-4 relative">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/40 to-transparent" />
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
             <div className="col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
