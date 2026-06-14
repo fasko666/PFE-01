@@ -3,29 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, Bell, Menu, Settings, User, LogOut, ChevronDown,
   TrendingUp, ShieldCheck, BadgeCheck, Zap,
-  MessageSquare, HelpCircle, Loader2,
+  MessageSquare, HelpCircle, Loader2, Sun, Moon, Monitor,
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useUIStore from '../../store/uiStore';
 import useNotificationStore from '../../store/notificationStore';
+import useThemeStore from '../../store/themeStore';
+import PandaLogo from '../ui/PandaLogo';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
 
 export default function TopBar() {
   const { user, logout, updateUser } = useAuthStore();
-  const { toggleSidebar }          = useUIStore();
-  const { unreadCount }            = useNotificationStore();
-  const navigate                   = useNavigate();
-  const [searchQuery, setSearchQuery]   = useState('');
-  const [profileOpen, setProfileOpen]   = useState(false);
-  const [onlineForMsg, setOnlineForMsg] = useState(user?.is_online ?? true);
+  const { toggleSidebar }            = useUIStore();
+  const { unreadCount }              = useNotificationStore();
+  const { theme, setTheme }          = useThemeStore();
+  const navigate                     = useNavigate();
+
+  const [searchQuery, setSearchQuery]       = useState('');
+  const [profileOpen, setProfileOpen]       = useState(false);
+  const [onlineForMsg, setOnlineForMsg]     = useState(user?.is_online ?? true);
   const [togglingOnline, setTogglingOnline] = useState(false);
-  const profileRef = useRef(null);
+  const profileRef  = useRef(null);
   const isFreelancer = user?.role === 'freelancer';
 
-  // Keep local toggle in sync if user object changes (e.g. after re-fetch)
   useEffect(() => {
-    if (user?.is_online !== undefined) setOnlineForMsg(user.is_online);
+    if (user?.is_online !== undefined) setOnlineForMsg(!!user.is_online);
   }, [user?.is_online]);
 
   useEffect(() => {
@@ -53,6 +56,27 @@ export default function TopBar() {
 
   const go = (path) => { setProfileOpen(false); navigate(path); };
 
+  const toggleOnline = async () => {
+    const next = !onlineForMsg;
+    setOnlineForMsg(next);
+    setTogglingOnline(true);
+    try {
+      const res = await api.auth.updateProfile({ is_online: next });
+      updateUser(res.data.user || {});
+    } catch {
+      setOnlineForMsg(!next);
+      toast.error('Could not update online status');
+    } finally {
+      setTogglingOnline(false);
+    }
+  };
+
+  const THEME_OPTIONS = [
+    { value: 'light',  icon: Sun,     label: 'Light'  },
+    { value: 'dark',   icon: Moon,    label: 'Dark'   },
+    { value: 'system', icon: Monitor, label: 'System' },
+  ];
+
   return (
     <header className="h-16 bg-dark-950/95 backdrop-blur-xl border-b border-dark-800/60 flex items-center px-4 gap-3 shrink-0 sticky top-0 z-40">
 
@@ -64,7 +88,17 @@ export default function TopBar() {
         <Menu className="w-4 h-4" strokeWidth={2} />
       </button>
 
-      {/* Search bar — Upwork-style, prominent */}
+      {/* PANDA Logo */}
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
+        aria-label="Go to dashboard"
+      >
+        <PandaLogo className="w-7 h-7" />
+        <span className="hidden md:block text-sm font-bold text-dark-100 tracking-wide">PANDA</span>
+      </button>
+
+      {/* Search bar */}
       <form onSubmit={handleSearch} className="flex-1 max-w-xl">
         <div className="relative flex items-center">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500 pointer-events-none" strokeWidth={2} />
@@ -120,11 +154,15 @@ export default function TopBar() {
             onClick={() => setProfileOpen((v) => !v)}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-dark-800 transition-all"
           >
-            <img
-              src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=64`}
-              alt={user?.name}
-              className="w-8 h-8 rounded-full ring-1 ring-dark-700 object-cover shrink-0"
-            />
+            <div className="relative shrink-0">
+              <img
+                src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=64`}
+                alt={user?.name}
+                className="w-8 h-8 rounded-full ring-1 ring-dark-700 object-cover"
+              />
+              {/* Online dot */}
+              <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-dark-950 ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
+            </div>
             <div className="hidden sm:block text-left min-w-0">
               <div className="text-xs font-semibold text-dark-100 leading-tight truncate max-w-[80px]">{user?.name?.split(' ')[0]}</div>
               <div className="text-[10px] text-dark-500 capitalize leading-tight">{user?.role}</div>
@@ -136,11 +174,14 @@ export default function TopBar() {
             {/* User info */}
             <div className="px-4 py-3.5 border-b border-dark-800">
               <div className="flex items-center gap-3">
-                <img
-                  src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=64`}
-                  alt={user?.name}
-                  className="w-10 h-10 rounded-full object-cover ring-1 ring-dark-700 shrink-0"
-                />
+                <div className="relative shrink-0">
+                  <img
+                    src={user?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=4361ff&color=fff&size=64`}
+                    alt={user?.name}
+                    className="w-10 h-10 rounded-full object-cover ring-1 ring-dark-700"
+                  />
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-dark-900 ${onlineForMsg ? 'bg-green-400' : 'bg-dark-600'}`} />
+                </div>
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-dark-100 truncate">{user?.name}</div>
                   <div className="text-xs text-dark-500 capitalize">{user?.role}</div>
@@ -157,20 +198,8 @@ export default function TopBar() {
                 </div>
                 <button
                   disabled={togglingOnline}
-                  onClick={async () => {
-                    const next = !onlineForMsg;
-                    setOnlineForMsg(next);
-                    setTogglingOnline(true);
-                    try {
-                      const res = await api.auth.updateProfile({ is_online: next });
-                      updateUser(res.data.user || {});
-                    } catch {
-                      setOnlineForMsg(!next);
-                      toast.error('Could not update status');
-                    } finally {
-                      setTogglingOnline(false);
-                    }
-                  }}
+                  onClick={toggleOnline}
+                  aria-label="Toggle online status"
                   className={`relative w-9 h-5 rounded-full transition-colors shrink-0 disabled:opacity-60 ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
                 >
                   {togglingOnline
@@ -187,10 +216,13 @@ export default function TopBar() {
               {isFreelancer && (
                 <DropItem icon={TrendingUp} label="Stats and trends" onClick={() => go('/reports')} />
               )}
-              <DropItem icon={ShieldCheck} label="Account health"   onClick={() => go('/settings')} />
-              <DropItem icon={BadgeCheck}  label="Membership plan"  onClick={() => go('/settings')} />
+              <DropItem icon={ShieldCheck} label="Account health"   onClick={() => go('/account-health')} />
+              <DropItem icon={BadgeCheck}  label="Membership plan"  onClick={() => go('/membership')} />
               {isFreelancer && (
-                <button className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800/70 transition-colors" onClick={() => go('/settings')}>
+                <button
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800/70 transition-colors"
+                  onClick={() => go('/connects')}
+                >
                   <Zap className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
                   <span>Connects</span>
                   <span className="ml-auto text-xs text-dark-500 font-medium">
@@ -198,6 +230,31 @@ export default function TopBar() {
                   </span>
                 </button>
               )}
+            </div>
+
+            {/* Theme switcher */}
+            <div className="px-4 py-2.5 border-t border-dark-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-dark-400">Theme</span>
+                <span className="text-xs text-dark-500 capitalize">{theme}</span>
+              </div>
+              <div className="flex gap-1">
+                {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    title={label}
+                    className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs transition-colors ${
+                      theme === value
+                        ? 'bg-primary-500/20 text-primary-400'
+                        : 'text-dark-500 hover:text-dark-200 hover:bg-dark-800'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" strokeWidth={1.75} />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="py-1.5 border-t border-dark-800">

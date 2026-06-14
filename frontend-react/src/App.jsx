@@ -71,7 +71,10 @@ const PaymentSuccess     = lazy(() => import('./pages/Payments/PaymentSuccess'))
 const PaymentCancel      = lazy(() => import('./pages/Payments/PaymentCancel'));
 const StripeConnectReturn= lazy(() => import('./pages/Payments/StripeConnectReturn'));
 const AdminFinance       = lazy(() => import('./pages/Admin/AdminFinance'));
-const AIAssistant = lazy(() => import('./pages/AI/AIAssistant'));
+const AIAssistant    = lazy(() => import('./pages/AI/AIAssistant'));
+const AccountHealth  = lazy(() => import('./pages/AccountHealth/AccountHealth'));
+const Connects       = lazy(() => import('./pages/Connects/Connects'));
+const Membership     = lazy(() => import('./pages/Membership/Membership'));
 
 const PageLoader = () => (
   <div className="min-h-screen theme-bg flex items-center justify-center">
@@ -208,7 +211,10 @@ function AppRoot() {
             {/* Billing */}
             <Route path="/billing"                element={<Billing />} />
 
-            <Route path="/ai-assistant"  element={<AIAssistant />} />
+            <Route path="/ai-assistant"    element={<AIAssistant />} />
+            <Route path="/account-health"  element={<ProtectedRoute><AccountHealth /></ProtectedRoute>} />
+            <Route path="/connects"        element={<ProtectedRoute roles={['freelancer']}><Connects /></ProtectedRoute>} />
+            <Route path="/membership"      element={<ProtectedRoute><Membership /></ProtectedRoute>} />
             <Route path="/settings"      element={<ProtectedRoute roles={['freelancer', 'client']}><FreelancerSettings /></ProtectedRoute>} />
             <Route path="/reports"          element={<ProtectedRoute roles={['freelancer', 'client']}><Reports /></ProtectedRoute>} />
             <Route path="/reports/:section" element={<ProtectedRoute roles={['freelancer', 'client']}><Reports /></ProtectedRoute>} />
