@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
-title PANDA — Freelance Platform
+title PANDA - Freelance Platform
 
-:: ── Paths ──────────────────────────────────────────────────────
+:: Paths
 set "ROOT=%~dp0"
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "BACKEND=%ROOT%\backend-laravel"
@@ -20,21 +20,21 @@ echo    PANDA - Freelance Marketplace Platform
 echo  ====================================================
 echo.
 
-:: ── Detect first-time setup ────────────────────────────────────
+:: Detect first-time setup
 set "NEED_SETUP=0"
 if not exist "%BACKEND%\vendor\autoload.php" set "NEED_SETUP=1"
 if not exist "%FRONT%\node_modules\.bin"     set "NEED_SETUP=1"
 
 if "%NEED_SETUP%"=="0" goto :LAUNCH
 
-:: ══════════════════════════════════════════════════════════════
-::  SETUP  (first run only)
-:: ══════════════════════════════════════════════════════════════
-echo  FIRST-TIME SETUP — please wait, this runs once.
+::--------------------------------------------------------------
+:: SETUP - first run only
+::--------------------------------------------------------------
+echo  FIRST-TIME SETUP - please wait, this runs once.
 echo  ----------------------------------------------------
 echo.
 
-:: ── [1/5] PHP ─────────────────────────────────────────────────
+:: [1/5] PHP
 echo  [1/5] Checking PHP (XAMPP)...
 if not exist "C:\xampp\php\php.exe" (
     echo.
@@ -47,7 +47,7 @@ if not exist "C:\xampp\php\php.exe" (
 echo  [OK] PHP found at C:\xampp\php
 echo.
 
-:: ── [2/5] Composer ────────────────────────────────────────────
+:: [2/5] Composer
 echo  [2/5] Checking Composer...
 where composer >nul 2>&1
 if errorlevel 1 (
@@ -68,7 +68,7 @@ if errorlevel 1 (
 echo  [OK] Composer ready
 echo.
 
-:: ── [3/5] Node.js ─────────────────────────────────────────────
+:: [3/5] Node.js
 echo  [3/5] Checking Node.js...
 where node >nul 2>&1
 if errorlevel 1 (
@@ -89,7 +89,7 @@ if errorlevel 1 (
 echo  [OK] Node.js ready
 echo.
 
-:: ── [4/5] MySQL + Database ────────────────────────────────────
+:: [4/5] MySQL + Database
 echo  [4/5] Setting up MySQL database...
 if not exist "%MYSQL%" (
     echo.
@@ -100,10 +100,8 @@ if not exist "%MYSQL%" (
 )
 
 :: Try to start MySQL service automatically
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "foreach($n in 'mysql','MySQL','MySQL80'){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 4}catch{}};break}}" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 4}catch{}};break}}" >nul 2>&1
 
-:: Wait until MySQL responds
 :WAIT_SETUP
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
@@ -117,9 +115,8 @@ if errorlevel 1 (
 )
 echo  [OK] MySQL running
 
-:: Create database
 "%MYSQL%" -u root -e "CREATE DATABASE IF NOT EXISTS panda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >nul 2>&1
-echo  [OK] Database 'panda' ready
+echo  [OK] Database panda ready
 
 :: Import panda.sql only once (flag file prevents re-import)
 if not exist "%ROOT%\.db_imported" (
@@ -132,8 +129,8 @@ if not exist "%ROOT%\.db_imported" (
 )
 echo.
 
-:: ── [5/5] Backend + Frontend ──────────────────────────────────
-echo  [5/5] Installing backend and frontend packages...
+:: [5/5] Backend + Frontend
+echo  [5/5] Installing packages...
 
 :: Backend .env
 if not exist "%BACKEND%\.env" (
@@ -141,12 +138,11 @@ if not exist "%BACKEND%\.env" (
         copy "%BACKEND%\.env.example" "%BACKEND%\.env" >nul
     )
 )
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$c=[IO.File]::ReadAllText('%BACKEND%\.env');$c=$c -replace 'SESSION_DRIVER=database','SESSION_DRIVER=file';$c=$c -replace 'CACHE_STORE=database','CACHE_STORE=file';[IO.File]::WriteAllText('%BACKEND%\.env',$c)" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=[IO.File]::ReadAllText('%BACKEND%\.env');$c=$c -replace 'SESSION_DRIVER=database','SESSION_DRIVER=file';$c=$c -replace 'CACHE_STORE=database','CACHE_STORE=file';[IO.File]::WriteAllText('%BACKEND%\.env',$c)" >nul 2>&1
 
 :: Composer install
 echo.
-echo  Running composer install (this may take 1-2 minutes)...
+echo  Running composer install (1-2 minutes)...
 pushd "%BACKEND%"
 composer install --no-interaction --prefer-dist --optimize-autoloader
 if errorlevel 1 (
@@ -158,11 +154,9 @@ if errorlevel 1 (
 )
 echo  [OK] PHP packages installed
 
-:: App key
 php artisan key:generate --force >nul 2>&1
 echo  [OK] APP_KEY generated
 
-:: Storage dirs
 for %%d in (
     "storage\app\public"
     "storage\framework\cache\data"
@@ -173,12 +167,7 @@ for %%d in (
     if not exist "%BACKEND%\%%~d" mkdir "%BACKEND%\%%~d" >nul 2>&1
 )
 php artisan storage:link --force >nul 2>&1
-
-:: Migrations
 php artisan migrate --force
-if errorlevel 1 (
-    echo  [WARN] Some migrations failed — continuing anyway.
-)
 echo  [OK] Migrations done
 popd
 
@@ -196,7 +185,7 @@ echo  [OK] Frontend .env ready
 
 :: npm install
 echo.
-echo  Running npm install (this may take 1-3 minutes)...
+echo  Running npm install (1-3 minutes)...
 pushd "%FRONT%"
 npm install
 if errorlevel 1 (
@@ -216,12 +205,11 @@ echo  ====================================================
 echo.
 timeout /t 3 /nobreak >nul
 
-:: ══════════════════════════════════════════════════════════════
-::  LAUNCH  (runs every time)
-:: ══════════════════════════════════════════════════════════════
+::--------------------------------------------------------------
+:: LAUNCH - runs every time
+::--------------------------------------------------------------
 :LAUNCH
 
-:: Re-add XAMPP to PATH (needed when skipping setup)
 if exist "C:\xampp\php\php.exe"         set "PATH=C:\xampp\php;%PATH%"
 if exist "C:\xampp\mysql\bin\mysql.exe" set "PATH=C:\xampp\mysql\bin;%PATH%"
 
@@ -230,32 +218,30 @@ echo  ----------------------------------------------------
 
 where php >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] PHP not found — install XAMPP from apachefriends.org
+    echo  [ERROR] PHP not found - install XAMPP from apachefriends.org
     pause & exit /b 1
 )
-echo  [+] PHP
+echo  [+] PHP OK
 
 where node >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] Node.js not found — delete node_modules folder and run again
+    echo  [ERROR] Node.js not found - delete node_modules and run again
     pause & exit /b 1
 )
-echo  [+] Node.js
+echo  [+] Node.js OK
 
 where composer >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] Composer not found — delete vendor folder and run again
+    echo  [ERROR] Composer not found - delete vendor and run again
     pause & exit /b 1
 )
-echo  [+] Composer
+echo  [+] Composer OK
 echo.
 
 echo  DATABASE
 echo  ----------------------------------------------------
 
-:: Try to start MySQL service
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "foreach($n in 'mysql','MySQL','MySQL80'){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 3}catch{}};break}}" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 3}catch{}};break}}" >nul 2>&1
 
 :WAIT_LAUNCH
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
@@ -268,11 +254,9 @@ if errorlevel 1 (
     pause >nul
     goto :WAIT_LAUNCH
 )
-echo  [+] MySQL running
+echo  [+] MySQL OK
 
-:: Patch .env, migrate, clear cache
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$c=[IO.File]::ReadAllText('%BACKEND%\.env');$c=$c -replace 'SESSION_DRIVER=database','SESSION_DRIVER=file';$c=$c -replace 'CACHE_STORE=database','CACHE_STORE=file';[IO.File]::WriteAllText('%BACKEND%\.env',$c)" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=[IO.File]::ReadAllText('%BACKEND%\.env');$c=$c -replace 'SESSION_DRIVER=database','SESSION_DRIVER=file';$c=$c -replace 'CACHE_STORE=database','CACHE_STORE=file';[IO.File]::WriteAllText('%BACKEND%\.env',$c)" >nul 2>&1
 
 pushd "%BACKEND%"
 php artisan storage:link --force >nul 2>&1
@@ -282,18 +266,18 @@ php artisan cache:clear  >nul 2>&1
 php artisan route:clear  >nul 2>&1
 php artisan view:clear   >nul 2>&1
 popd
-echo  [+] Laravel ready
+echo  [+] Laravel OK
 echo.
 
 echo  LAUNCHING SERVERS
 echo  ----------------------------------------------------
 
-echo  Starting backend  (http://localhost:8000)...
+echo  Starting backend  - http://localhost:8000
 start "PANDA Backend" /D "%BACKEND%" cmd /k "color 17 && echo. && echo   PANDA Backend ^| http://localhost:8000 && echo. && php artisan serve --host=127.0.0.1 --port=8000"
 timeout /t 8 /nobreak >nul
 echo  [+] Backend running
 
-echo  Starting frontend (http://localhost:5173)...
+echo  Starting frontend - http://localhost:5173
 start "PANDA Frontend" /D "%FRONT%" cmd /k "color 19 && echo. && echo   PANDA Frontend ^| http://localhost:5173 && echo. && npm run dev"
 timeout /t 6 /nobreak >nul
 echo  [+] Frontend running
