@@ -197,10 +197,11 @@ export default function TopBar() {
                   <span className="text-xs text-dark-300">Online for messages</span>
                 </div>
                 <button
+                  type="button"
                   disabled={togglingOnline}
                   onClick={toggleOnline}
                   aria-label="Toggle online status"
-                  className={`relative w-9 h-5 rounded-full transition-colors shrink-0 disabled:opacity-60 ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
+                  className={`relative w-9 h-5 rounded-full transition-colors shrink-0 disabled:opacity-60 cursor-pointer ${onlineForMsg ? 'bg-green-500' : 'bg-dark-700'}`}
                 >
                   {togglingOnline
                     ? <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-white animate-spin" />
@@ -220,13 +221,14 @@ export default function TopBar() {
               <DropItem icon={BadgeCheck}  label="Membership plan"  onClick={() => go('/membership')} />
               {isFreelancer && (
                 <button
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800/70 transition-colors"
+                  type="button"
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800 transition-colors cursor-pointer"
                   onClick={() => go('/connects')}
                 >
                   <Zap className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
                   <span>Connects</span>
                   <span className="ml-auto text-xs text-dark-500 font-medium">
-                    {user?.subscription?.connects_balance ?? 0} left
+                    {user?.connects_balance ?? 0} left
                   </span>
                 </button>
               )}
@@ -263,8 +265,9 @@ export default function TopBar() {
 
             <div className="py-1.5 border-t border-dark-800">
               <button
+                type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-400 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
                 Log out
@@ -280,8 +283,9 @@ export default function TopBar() {
 function DropItem({ icon: Icon, label, onClick }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800/70 transition-colors"
+      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-dark-300 hover:text-dark-100 hover:bg-dark-800 transition-colors cursor-pointer"
     >
       <Icon className="w-3.5 h-3.5 text-dark-500 shrink-0" strokeWidth={1.75} />
       {label}

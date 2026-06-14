@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, CheckCircle } from 'lucide-react';
 
 export default function AccountHealth() {
   const [tab, setTab] = useState('violations');

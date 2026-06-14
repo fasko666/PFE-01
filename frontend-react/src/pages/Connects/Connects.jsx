@@ -7,7 +7,7 @@ const DATES = ['Last 7 days', 'Last 30 days', 'Last 3 months', 'Last year'];
 
 export default function Connects() {
   const { user } = useAuthStore();
-  const balance = user?.subscription?.connects_balance ?? 0;
+  const balance = user?.connects_balance ?? 0;
   const [type, setType] = useState('All connects');
   const [date, setDate] = useState('Last 7 days');
 
