@@ -643,7 +643,7 @@ export default function GlobalNavbar() {
                 {openMenu === 'profile' && (
                   <motion.div
                     {...DD}
-                    className="absolute right-0 top-full mt-2 w-[272px] card shadow-float"
+                    className="absolute right-0 top-full mt-2 w-[272px] card shadow-float overflow-hidden"
                     onMouseEnter={() => open('profile')}
                     onMouseLeave={close}
                     style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)' }}
@@ -668,7 +668,7 @@ export default function GlobalNavbar() {
                         onClick={toggleOnline}
                         disabled={togglingOnline}
                         style={{ width: 36, height: 20 }}
-                        className={`relative rounded-full transition-colors shrink-0 cursor-pointer disabled:opacity-50 ${onlineMsg ? 'bg-green-500' : 'bg-dark-700'}`}>
+                        className={`relative rounded-full overflow-hidden transition-colors shrink-0 cursor-pointer disabled:opacity-50 ${onlineMsg ? 'bg-green-500' : 'bg-dark-700'}`}>
                         {togglingOnline
                           ? <Loader2 className="absolute inset-0 m-auto w-3 h-3 text-white animate-spin" />
                           : <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${onlineMsg ? 'translate-x-[16px]' : 'translate-x-[2px]'}`} />
