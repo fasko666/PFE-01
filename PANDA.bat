@@ -20,14 +20,12 @@ echo.
 ::--------------------------------------------------------------
 set "PHP_BIN="
 set "MYSQL_BIN="
-set "SERVER_NAME="
 
 :: --- XAMPP (check C: D: E: F:) ---
 for %%D in (C D E F) do (
     if exist "%%D:\xampp\php\php.exe" (
         set "PHP_BIN=%%D:\xampp\php"
         set "MYSQL_BIN=%%D:\xampp\mysql\bin"
-        set "SERVER_NAME=XAMPP"
         goto :SERVER_FOUND
     )
 )
@@ -41,10 +39,7 @@ for %%D in (C D E F) do (
         for /d %%M in ("%%D:\wamp64\bin\mysql\mysql*") do (
             if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
         )
-        if defined PHP_BIN (
-            set "SERVER_NAME=WampServer"
-            goto :SERVER_FOUND
-        )
+        if defined PHP_BIN goto :SERVER_FOUND
     )
 )
 
@@ -57,10 +52,7 @@ for %%D in (C D E F) do (
         for /d %%M in ("%%D:\wamp\bin\mysql\mysql*") do (
             if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
         )
-        if defined PHP_BIN (
-            set "SERVER_NAME=WampServer"
-            goto :SERVER_FOUND
-        )
+        if defined PHP_BIN goto :SERVER_FOUND
     )
 )
 
@@ -76,9 +68,8 @@ pause & exit /b 1
 :SERVER_FOUND
 set "MYSQL=%MYSQL_BIN%\mysql.exe"
 set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
-echo  [+] Detected: %SERVER_NAME%
-echo      PHP   : %PHP_BIN%
-echo      MySQL : %MYSQL_BIN%
+echo  [+] PHP   : %PHP_BIN%
+echo  [+] MySQL : %MYSQL_BIN%
 echo.
 
 :: Detect first-time setup
@@ -139,26 +130,17 @@ echo.
 
 :: [3/4] MySQL + Database
 echo  [3/4] Setting up MySQL database...
-
-powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('wampmysqld64','wampmysqld','mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 4}catch{}};break}}" >nul 2>&1
+call :START_MYSQL
 
 :WAIT_SETUP
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
-    "%MYSQL%" -u root --password="" -e "SELECT 1;" >nul 2>&1
-    if errorlevel 1 (
-        echo.
-        echo  [!] MySQL is not running.
-        if "%SERVER_NAME%"=="WampServer" (
-            echo      Open WampServer tray icon and start the services.
-        ) else (
-            echo      Open XAMPP Control Panel and click START next to MySQL.
-        )
-        echo      Then press any key to retry...
-        echo.
-        pause >nul
-        goto :WAIT_SETUP
-    )
+    echo.
+    echo  [!] MySQL is not running. Start it and press any key to retry...
+    echo.
+    pause >nul
+    call :START_MYSQL
+    goto :WAIT_SETUP
 )
 echo  [OK] MySQL running
 
@@ -273,22 +255,16 @@ echo.
 
 echo  DATABASE
 echo  ----------------------------------------------------
-
-powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('wampmysqld64','wampmysqld','mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 3}catch{}};break}}" >nul 2>&1
+call :START_MYSQL
 
 :WAIT_LAUNCH
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
     echo.
-    echo  [!] MySQL is not running.
-    if "%SERVER_NAME%"=="WampServer" (
-        echo      Open WampServer tray icon and start services.
-    ) else (
-        echo      Open XAMPP Control Panel and click START next to MySQL.
-    )
-    echo      Press any key to retry...
+    echo  [!] MySQL is not running. Start it and press any key to retry...
     echo.
     pause >nul
+    call :START_MYSQL
     goto :WAIT_LAUNCH
 )
 echo  [+] MySQL OK
@@ -332,3 +308,13 @@ echo.
 start http://localhost:5173
 echo  Press any key to close this window...
 pause >nul
+goto :EOF
+
+::--------------------------------------------------------------
+:: HELPER - auto-start MySQL service (tries all known names)
+::--------------------------------------------------------------
+:START_MYSQL
+powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('wampmysqld64','wampmysqld','mysql','MySQL','MySQL80','mariadb','MariaDB')){$s=Get-Service $n -EA SilentlyContinue;if($s -and $s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue}catch{}}}" >nul 2>&1
+for %%S in (wampmysqld64 wampmysqld mysql MySQL MySQL80 mariadb) do net start %%S >nul 2>&1
+timeout /t 4 /nobreak >nul
+goto :EOF
