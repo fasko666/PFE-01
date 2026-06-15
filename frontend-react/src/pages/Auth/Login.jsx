@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, ArrowLeft, AlertTriangle, Shield } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, AlertTriangle, Shield, Briefcase, Building2, Check, ArrowRight } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useNotificationStore from '../../store/notificationStore';
 import toast from 'react-hot-toast';
@@ -37,6 +37,7 @@ export default function Login() {
   const { fetch: fetchNotifs } = useNotificationStore();
 
   const [step,        setStep]        = useState('email');
+  const [googleRole,  setGoogleRole]  = useState(null); // 'freelancer' | 'client'
   const [email,       setEmail]       = useState('');
   const [password,    setPassword]    = useState('');
   const [showPw,      setShowPw]      = useState(false);
@@ -109,7 +110,13 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = () => { window.location.href = `${API_BASE}/auth/google`; };
+  const handleGoogleStart = () => { setStep('google_role'); setError(''); };
+
+  const handleGoogleConfirm = () => {
+    if (!googleRole) return;
+    sessionStorage.setItem('pendingGoogleRole', googleRole);
+    window.location.href = `${API_BASE}/auth/google`;
+  };
 
   const slide = {
     initial:    { opacity: 0, x: 18 },
@@ -187,7 +194,7 @@ export default function Login() {
             {/* Google */}
             <button
               type="button"
-              onClick={handleGoogle}
+              onClick={handleGoogleStart}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-dark-800 border border-dark-700 hover:bg-dark-700 hover:border-dark-600 transition-all text-sm font-medium text-dark-200"
             >
               <span className="flex items-center justify-center w-5 h-5 shrink-0">
@@ -276,6 +283,72 @@ export default function Login() {
               <Shield className="w-3 h-3 text-green-500" strokeWidth={2} />
               256-bit SSL encrypted
             </p>
+          </motion.div>
+        )}
+
+        {/* ── Step: Google role picker ── */}
+        {step === 'google_role' && (
+          <motion.div key="google_role" {...slide} className="space-y-4">
+
+            {/* Back button + header */}
+            <div className="flex items-center gap-3 mb-1">
+              <button
+                type="button"
+                onClick={() => { setStep('email'); setGoogleRole(null); }}
+                className="p-1.5 rounded-lg text-dark-500 hover:text-dark-100 hover:bg-dark-700 transition-colors shrink-0"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+              <div>
+                <div className="text-sm font-semibold text-dark-100">How will you use PANDA?</div>
+                <div className="text-xs text-dark-500">Choose your account type</div>
+              </div>
+            </div>
+
+            {/* Role cards */}
+            {[
+              { role: 'freelancer', Icon: Briefcase, title: "I'm a Freelancer", desc: 'Find projects and earn on your terms.' },
+              { role: 'client',     Icon: Building2, title: "I'm a Client",     desc: 'Hire top talent and get work done.' },
+            ].map(({ role, Icon, title, desc }) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => setGoogleRole(role)}
+                className={`relative w-full text-left rounded-2xl border-2 p-4 flex items-center gap-4 transition-all cursor-pointer ${
+                  googleRole === role
+                    ? 'border-primary-500 bg-primary-500/8'
+                    : 'border-dark-700 bg-dark-800/50 hover:border-dark-600'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  googleRole === role ? 'bg-primary-500/20' : 'bg-dark-700'
+                }`}>
+                  <Icon className={`w-5 h-5 ${googleRole === role ? 'text-primary-400' : 'text-dark-400'}`} strokeWidth={1.75} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-semibold ${googleRole === role ? 'text-dark-50' : 'text-dark-100'}`}>{title}</div>
+                  <div className="text-xs text-dark-500 mt-0.5">{desc}</div>
+                </div>
+                {googleRole === role && (
+                  <span className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                  </span>
+                )}
+              </button>
+            ))}
+
+            {/* Continue to Google */}
+            <button
+              type="button"
+              onClick={handleGoogleConfirm}
+              disabled={!googleRole}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <GoogleIcon />
+              Continue with Google
+              <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+
           </motion.div>
         )}
 

@@ -80,9 +80,22 @@ export default function GoogleCallback() {
         loginWithToken(token, user);
 
         if (isNew) {
-          // New user — show role picker
-          setPendingData({ token, user });
-          setStatus('role_pick');
+          // Check if role was pre-selected before Google redirect
+          const preSelectedRole = sessionStorage.getItem('pendingGoogleRole');
+          sessionStorage.removeItem('pendingGoogleRole');
+
+          if (preSelectedRole) {
+            // Auto-apply role without showing picker
+            const { data: roleData } = await authApi.googleSetRole(preSelectedRole);
+            updateUser(roleData.user);
+            await fetchNotifs();
+            toast.success(`Welcome to PANDA, ${user.name?.split(' ')[0]}!`);
+            redirectToDashboard(roleData.user);
+          } else {
+            // Fallback: show role picker (came from somewhere without pre-selection)
+            setPendingData({ token, user });
+            setStatus('role_pick');
+          }
         } else {
           // Existing user — proceed straight to dashboard
           await fetchNotifs();
