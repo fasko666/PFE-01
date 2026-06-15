@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/change-password',        [AuthController::class, 'changePassword']);
         Route::post('/resend-verification',   [AuthController::class, 'resendVerification']);
         Route::post('/verify-phone',          [AuthController::class, 'verifyPhone']);
+        Route::post('/google/set-role',       [AuthController::class, 'googleSetRole']);
     });
 
     // Notifications

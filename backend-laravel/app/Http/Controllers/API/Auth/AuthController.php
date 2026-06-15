@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -295,6 +296,7 @@ class AuthController extends Controller
         }
 
         // Find or create user by google_id or email
+        $isNewUser = false;
         $user = User::where('google_id', $googleUser->getId())->first()
             ?? User::where('email', $googleUser->getEmail())->first();
 
@@ -312,21 +314,22 @@ class AuthController extends Controller
                 $user->update($updates);
             }
         } else {
-            // Create new user from Google data — forceFill for guarded fields
+            // Brand new user — create account without a role profile.
+            // The frontend will prompt them to pick Freelancer or Client.
+            $isNewUser = true;
             $user = (new User)->forceFill([
                 'name'              => $googleUser->getName(),
                 'username'          => $this->generateUsername($googleUser->getName()),
                 'email'             => $googleUser->getEmail(),
                 'password'          => Hash::make(Str::random(32)),
-                'role'              => 'freelancer', // default; user can change in onboarding
+                'role'              => 'freelancer', // temporary placeholder; updated by /auth/google/set-role
                 'google_id'         => $googleUser->getId(),
                 'avatar'            => $this->highResGoogleAvatar($googleUser->getAvatar()),
-                'email_verified_at' => now(), // Google already verified the email
+                'email_verified_at' => now(),
                 'is_active'         => true,
             ]);
 
             $user->save();
-            $user->freelancerProfile()->create([]);
             Wallet::create(['user_id' => $user->id]);
             Subscription::create(['user_id' => $user->id, 'plan' => 'free', 'connects_balance' => 10]);
         }
@@ -342,8 +345,38 @@ class AuthController extends Controller
         NotificationController::seedForUser($user->id, get_class($user), $user->role);
 
         $userEncoded = urlencode(json_encode($this->formatUser($user)));
+        $newUserFlag = $isNewUser ? '&new_user=1' : '';
 
-        return redirect("{$frontendUrl}/auth/callback?token={$token}&user={$userEncoded}");
+        return redirect("{$frontendUrl}/auth/callback?token={$token}&user={$userEncoded}{$newUserFlag}");
+    }
+
+    // ─── Google set role (called after role picker for new Google sign-ups) ───
+
+    public function googleSetRole(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'role' => 'required|in:freelancer,client',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = $request->user();
+        $role = $request->role;
+
+        $user->update(['role' => $role]);
+
+        if ($role === 'freelancer' && !$user->freelancerProfile()->exists()) {
+            $user->freelancerProfile()->create([]);
+        } elseif ($role === 'client' && !$user->clientProfile()->exists()) {
+            $user->clientProfile()->create([]);
+        }
+
+        return response()->json([
+            'message' => 'Role set',
+            'user'    => $this->formatUser($user->fresh(['freelancerProfile', 'clientProfile', 'subscription', 'wallet'])),
+        ]);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

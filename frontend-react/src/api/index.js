@@ -13,6 +13,7 @@ export const auth = {
   verifyPhone:          ()     => http.post('/auth/verify-phone'),
   forgotPassword: (email) => http.post('/auth/forgot-password', { email }),
   resetPassword:  (data)  => http.post('/auth/reset-password', data),
+  googleSetRole:  (role)  => http.post('/auth/google/set-role', { role }),
 };
 
 // Two-Factor Authentication
