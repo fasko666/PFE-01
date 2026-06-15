@@ -2,6 +2,13 @@
 chcp 65001 >nul
 title PANDA — Freelance Marketplace
 
+:: ── Auto-elevate to Administrator ───────────────────────────────────────────
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    exit /b
+)
+
 :: ── ANSI colors ─────────────────────────────────────────────────────────────
 for /f "tokens=*" %%E in ('powershell -NoProfile -Command "[char]27"') do set "ESC=%%E"
 set "R=%ESC%[0m"
