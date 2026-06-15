@@ -10,6 +10,7 @@ set "GRN=%ESC%[92m"
 set "YLW=%ESC%[93m"
 set "RED=%ESC%[91m"
 set "CYN=%ESC%[96m"
+set "BLU=%ESC%[94m"
 set "GRY=%ESC%[90m"
 set "WHT=%ESC%[97m"
 
@@ -21,13 +22,19 @@ set "FRONT=%ROOT%\frontend-react"
 
 cls
 echo.
-echo   %B%%CYN%  ______  ______  __   __  ______  ______%R%
-echo   %B%%CYN% /\  == \/\  __ \/\ "-.\ \/\  __ \/\  __ \%R%
-echo   %B%%CYN% \ \  _-/\ \  __ \ \ \-.  \ \ \/\ \ \  __ \%R%
-echo   %B%%CYN%  \ \_\   \ \_\ \_\ \_\\"\_\ \_____\ \_\ \_\%R%
-echo   %B%%CYN%   \/_/    \/_/\/_/\/_/ \/_/\/_____/\/_/\/_/%R%
 echo.
-echo   %GRY%  Freelance Marketplace Platform%R%
+echo    %B%%CYN%══════════════════════════════════════════════════════%R%
+echo.
+echo    %B%%WHT%    ██████╗  █████╗ ███╗   ██╗██████╗  █████╗%R%
+echo    %B%%WHT%    ██╔══██╗██╔══██╗████╗  ██║██╔══██╗██╔══██╗%R%
+echo    %B%%CYN%    ██████╔╝███████║██╔██╗ ██║██║  ██║███████║%R%
+echo    %B%%CYN%    ██╔═══╝ ██╔══██║██║╚██╗██║██║  ██║██╔══██║%R%
+echo    %B%%BLU%    ██║     ██║  ██║██║ ╚████║██████╔╝██║  ██║%R%
+echo    %B%%BLU%    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝%R%
+echo.
+echo    %GRY%          Freelance Marketplace Platform%R%
+echo.
+echo    %B%%CYN%══════════════════════════════════════════════════════%R%
 echo.
 
 :: ── DETECT XAMPP / WampServer ────────────────────────────────────────────────
