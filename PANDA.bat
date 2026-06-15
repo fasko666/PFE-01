@@ -7,17 +7,72 @@ set "ROOT=%~dp0"
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "BACKEND=%ROOT%\backend-laravel"
 set "FRONT=%ROOT%\frontend-react"
-set "MYSQL=C:\xampp\mysql\bin\mysql.exe"
-
-:: Add XAMPP to PATH
-if exist "C:\xampp\php\php.exe"         set "PATH=C:\xampp\php;%PATH%"
-if exist "C:\xampp\mysql\bin\mysql.exe" set "PATH=C:\xampp\mysql\bin;%PATH%"
 
 cls
 echo.
 echo  ====================================================
 echo    PANDA - Freelance Marketplace Platform
 echo  ====================================================
+echo.
+
+::--------------------------------------------------------------
+:: AUTO-DETECT XAMPP or WampServer
+::--------------------------------------------------------------
+set "PHP_BIN="
+set "MYSQL_BIN="
+set "SERVER_NAME="
+
+:: --- XAMPP ---
+if exist "C:\xampp\php\php.exe" (
+    set "PHP_BIN=C:\xampp\php"
+    set "MYSQL_BIN=C:\xampp\mysql\bin"
+    set "SERVER_NAME=XAMPP"
+    goto :SERVER_FOUND
+)
+
+:: --- WampServer 64-bit ---
+if exist "C:\wamp64\bin\php" (
+    for /d %%P in ("C:\wamp64\bin\php\php*") do (
+        if exist "%%P\php.exe" set "PHP_BIN=%%P"
+    )
+    for /d %%M in ("C:\wamp64\bin\mysql\mysql*") do (
+        if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
+    )
+    if defined PHP_BIN (
+        set "SERVER_NAME=WampServer"
+        goto :SERVER_FOUND
+    )
+)
+
+:: --- WampServer 32-bit ---
+if exist "C:\wamp\bin\php" (
+    for /d %%P in ("C:\wamp\bin\php\php*") do (
+        if exist "%%P\php.exe" set "PHP_BIN=%%P"
+    )
+    for /d %%M in ("C:\wamp\bin\mysql\mysql*") do (
+        if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
+    )
+    if defined PHP_BIN (
+        set "SERVER_NAME=WampServer"
+        goto :SERVER_FOUND
+    )
+)
+
+:: --- Not found ---
+echo  [ERROR] Neither XAMPP nor WampServer was found.
+echo.
+echo   Install one of:
+echo     XAMPP       : https://www.apachefriends.org
+echo     WampServer  : https://www.wampserver.com
+echo.
+pause & exit /b 1
+
+:SERVER_FOUND
+set "MYSQL=%MYSQL_BIN%\mysql.exe"
+set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
+echo  [+] Detected: %SERVER_NAME%
+echo      PHP   : %PHP_BIN%
+echo      MySQL : %MYSQL_BIN%
 echo.
 
 :: Detect first-time setup
@@ -34,21 +89,8 @@ echo  FIRST-TIME SETUP - please wait, this runs once.
 echo  ----------------------------------------------------
 echo.
 
-:: [1/5] PHP
-echo  [1/5] Checking PHP (XAMPP)...
-if not exist "C:\xampp\php\php.exe" (
-    echo.
-    echo  [ERROR] XAMPP PHP not found at C:\xampp\php
-    echo          Install XAMPP from https://www.apachefriends.org
-    echo          then run PANDA.bat again.
-    echo.
-    pause & exit /b 1
-)
-echo  [OK] PHP found at C:\xampp\php
-echo.
-
-:: [2/5] Composer
-echo  [2/5] Checking Composer...
+:: [1/4] Composer
+echo  [1/4] Checking Composer...
 where composer >nul 2>&1
 if errorlevel 1 (
     echo  Installing Composer via winget...
@@ -68,8 +110,8 @@ if errorlevel 1 (
 echo  [OK] Composer ready
 echo.
 
-:: [3/5] Node.js
-echo  [3/5] Checking Node.js...
+:: [2/4] Node.js
+echo  [2/4] Checking Node.js...
 where node >nul 2>&1
 if errorlevel 1 (
     echo  Installing Node.js via winget...
@@ -89,36 +131,34 @@ if errorlevel 1 (
 echo  [OK] Node.js ready
 echo.
 
-:: [4/5] MySQL + Database
-echo  [4/5] Setting up MySQL database...
-if not exist "%MYSQL%" (
-    echo.
-    echo  [ERROR] XAMPP MySQL not found at C:\xampp\mysql\bin
-    echo          Make sure XAMPP is installed correctly.
-    echo.
-    pause & exit /b 1
-)
+:: [3/4] MySQL + Database
+echo  [3/4] Setting up MySQL database...
 
-:: Try to start MySQL service automatically
-powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 4}catch{}};break}}" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('wampmysqld64','wampmysqld','mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 4}catch{}};break}}" >nul 2>&1
 
 :WAIT_SETUP
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
-    echo.
-    echo  [!] MySQL is not running.
-    echo      Open XAMPP Control Panel and click START next to MySQL.
-    echo      Then press any key to retry...
-    echo.
-    pause >nul
-    goto :WAIT_SETUP
+    "%MYSQL%" -u root --password="" -e "SELECT 1;" >nul 2>&1
+    if errorlevel 1 (
+        echo.
+        echo  [!] MySQL is not running.
+        if "%SERVER_NAME%"=="WampServer" (
+            echo      Open WampServer tray icon and start the services.
+        ) else (
+            echo      Open XAMPP Control Panel and click START next to MySQL.
+        )
+        echo      Then press any key to retry...
+        echo.
+        pause >nul
+        goto :WAIT_SETUP
+    )
 )
 echo  [OK] MySQL running
 
 "%MYSQL%" -u root -e "CREATE DATABASE IF NOT EXISTS panda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >nul 2>&1
 echo  [OK] Database panda ready
 
-:: Import panda.sql only once (flag file prevents re-import)
 if not exist "%ROOT%\.db_imported" (
     if exist "%ROOT%\panda.sql" (
         echo  Importing panda.sql...
@@ -129,10 +169,9 @@ if not exist "%ROOT%\.db_imported" (
 )
 echo.
 
-:: [5/5] Backend + Frontend
-echo  [5/5] Installing packages...
+:: [4/4] Backend + Frontend packages
+echo  [4/4] Installing packages...
 
-:: Backend .env
 if not exist "%BACKEND%\.env" (
     if exist "%BACKEND%\.env.example" (
         copy "%BACKEND%\.env.example" "%BACKEND%\.env" >nul
@@ -140,16 +179,11 @@ if not exist "%BACKEND%\.env" (
 )
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=[IO.File]::ReadAllText('%BACKEND%\.env');$c=$c -replace 'SESSION_DRIVER=database','SESSION_DRIVER=file';$c=$c -replace 'CACHE_STORE=database','CACHE_STORE=file';[IO.File]::WriteAllText('%BACKEND%\.env',$c)" >nul 2>&1
 
-:: Composer install
-echo.
 echo  Running composer install (1-2 minutes)...
 pushd "%BACKEND%"
 composer install --no-interaction --prefer-dist --optimize-autoloader
 if errorlevel 1 (
-    echo.
     echo  [ERROR] composer install failed.
-    echo          Check your internet connection and try again.
-    echo.
     popd & pause & exit /b 1
 )
 echo  [OK] PHP packages installed
@@ -171,7 +205,6 @@ php artisan migrate --force
 echo  [OK] Migrations done
 popd
 
-:: Frontend .env
 if not exist "%FRONT%\.env" (
     (
         echo VITE_API_URL=http://localhost:8000/api
@@ -183,16 +216,11 @@ if not exist "%FRONT%\.env" (
 )
 echo  [OK] Frontend .env ready
 
-:: npm install
-echo.
 echo  Running npm install (1-3 minutes)...
 pushd "%FRONT%"
 npm install
 if errorlevel 1 (
-    echo.
     echo  [ERROR] npm install failed.
-    echo          Check your internet connection and try again.
-    echo.
     popd & pause & exit /b 1
 )
 echo  [OK] Node packages installed
@@ -210,29 +238,28 @@ timeout /t 3 /nobreak >nul
 ::--------------------------------------------------------------
 :LAUNCH
 
-if exist "C:\xampp\php\php.exe"         set "PATH=C:\xampp\php;%PATH%"
-if exist "C:\xampp\mysql\bin\mysql.exe" set "PATH=C:\xampp\mysql\bin;%PATH%"
+set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
 
 echo  SYSTEM CHECK
 echo  ----------------------------------------------------
 
 where php >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] PHP not found - install XAMPP from apachefriends.org
+    echo  [ERROR] PHP not found
     pause & exit /b 1
 )
 echo  [+] PHP OK
 
 where node >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] Node.js not found - delete node_modules and run again
+    echo  [ERROR] Node.js not found
     pause & exit /b 1
 )
 echo  [+] Node.js OK
 
 where composer >nul 2>&1
 if errorlevel 1 (
-    echo  [ERROR] Composer not found - delete vendor and run again
+    echo  [ERROR] Composer not found
     pause & exit /b 1
 )
 echo  [+] Composer OK
@@ -241,14 +268,18 @@ echo.
 echo  DATABASE
 echo  ----------------------------------------------------
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 3}catch{}};break}}" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "foreach($n in @('wampmysqld64','wampmysqld','mysql','MySQL','MySQL80')){$s=Get-Service $n -EA SilentlyContinue;if($s){if($s.Status -ne 'Running'){try{Start-Service $n -EA SilentlyContinue;Start-Sleep 3}catch{}};break}}" >nul 2>&1
 
 :WAIT_LAUNCH
 "%MYSQL%" -u root -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
     echo.
     echo  [!] MySQL is not running.
-    echo      Open XAMPP Control Panel and click START next to MySQL.
+    if "%SERVER_NAME%"=="WampServer" (
+        echo      Open WampServer tray icon and start services.
+    ) else (
+        echo      Open XAMPP Control Panel and click START next to MySQL.
+    )
     echo      Press any key to retry...
     echo.
     pause >nul
