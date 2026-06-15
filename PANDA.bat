@@ -77,6 +77,16 @@ set "NEED_SETUP=0"
 if not exist "%BACKEND%\vendor\autoload.php" set "NEED_SETUP=1"
 if not exist "%FRONT%\node_modules\.bin"     set "NEED_SETUP=1"
 
+if "%NEED_SETUP%"=="0" (
+    pushd "%BACKEND%"
+    php artisan --version >nul 2>&1
+    if errorlevel 1 (
+        echo  [!] Incomplete install detected. Re-running setup...
+        rmdir /s /q vendor >nul 2>&1
+        set "NEED_SETUP=1"
+    )
+    popd
+)
 if "%NEED_SETUP%"=="0" goto :LAUNCH
 
 ::--------------------------------------------------------------
