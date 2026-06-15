@@ -186,12 +186,13 @@ Full API documentation available in the backend README.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
-**Ayoub Elmernissi**  
-Final Year Project (PFE) — Full Stack Web Development  
+**Ayoub Elmernissi & Omar Elezouzi**  
+Final Year Project (PFE) — Full Stack Web Development
 
 [![GitHub](https://img.shields.io/badge/GitHub-fasko666-181717?style=flat&logo=github)](https://github.com/fasko666)
+[![GitHub](https://img.shields.io/badge/GitHub-omarelleazzouzi--eng-181717?style=flat&logo=github)](https://github.com/omarelleazzouzi-eng)
 
 ---
 
