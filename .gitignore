@@ -31,3 +31,7 @@ panda
 .DS_Store
 Thumbs.db
 PANDA-project.zip
+documentation/plantuml.jar
+documentation/*.pdf
+documentation/*.docx
+documentation/*.pptx
