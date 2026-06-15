@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="frontend-react/public/2.png" alt="PANDA Logo" width="80" />
+<img src="https://raw.githubusercontent.com/fasko666/PFE-01/main/frontend-react/public/panda-logo.png" alt="PANDA Logo" width="100" />
 
 # PANDA — Freelance Marketplace Platform
 
