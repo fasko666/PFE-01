@@ -13,7 +13,7 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com)
 
-[🌐 Live Demo](#) · [📖 Documentation](#) · [🐛 Report Bug](https://github.com/fasko666/PFE-01/issues) · [✨ Request Feature](https://github.com/fasko666/PFE-01/issues)
+[🌐 Live Demo](https://project-kn296.vercel.app) · [📖 Documentation](#) · [🐛 Report Bug](https://github.com/fasko666/PFE-01/issues) · [✨ Request Feature](https://github.com/fasko666/PFE-01/issues)
 
 </div>
 
