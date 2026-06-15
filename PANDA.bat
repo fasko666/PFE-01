@@ -171,8 +171,12 @@ echo  Running composer install (1-2 minutes)...
 pushd "%BACKEND%"
 composer install --no-interaction --prefer-dist --optimize-autoloader
 if errorlevel 1 (
-    echo  [ERROR] composer install failed.
-    popd & pause & exit /b 1
+    echo  [!] Updating packages for your PHP version...
+    composer update --no-interaction --prefer-dist --optimize-autoloader
+    if errorlevel 1 (
+        echo  [ERROR] composer install/update failed.
+        popd & pause & exit /b 1
+    )
 )
 echo  [OK] PHP packages installed
 
