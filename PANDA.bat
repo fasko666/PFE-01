@@ -22,39 +22,45 @@ set "PHP_BIN="
 set "MYSQL_BIN="
 set "SERVER_NAME="
 
-:: --- XAMPP ---
-if exist "C:\xampp\php\php.exe" (
-    set "PHP_BIN=C:\xampp\php"
-    set "MYSQL_BIN=C:\xampp\mysql\bin"
-    set "SERVER_NAME=XAMPP"
-    goto :SERVER_FOUND
-)
-
-:: --- WampServer 64-bit ---
-if exist "C:\wamp64\bin\php" (
-    for /d %%P in ("C:\wamp64\bin\php\php*") do (
-        if exist "%%P\php.exe" set "PHP_BIN=%%P"
-    )
-    for /d %%M in ("C:\wamp64\bin\mysql\mysql*") do (
-        if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
-    )
-    if defined PHP_BIN (
-        set "SERVER_NAME=WampServer"
+:: --- XAMPP (check C: D: E: F:) ---
+for %%D in (C D E F) do (
+    if exist "%%D:\xampp\php\php.exe" (
+        set "PHP_BIN=%%D:\xampp\php"
+        set "MYSQL_BIN=%%D:\xampp\mysql\bin"
+        set "SERVER_NAME=XAMPP"
         goto :SERVER_FOUND
     )
 )
 
-:: --- WampServer 32-bit ---
-if exist "C:\wamp\bin\php" (
-    for /d %%P in ("C:\wamp\bin\php\php*") do (
-        if exist "%%P\php.exe" set "PHP_BIN=%%P"
+:: --- WampServer 64-bit (check C: D: E: F:) ---
+for %%D in (C D E F) do (
+    if exist "%%D:\wamp64\bin\php" (
+        for /d %%P in ("%%D:\wamp64\bin\php\php*") do (
+            if exist "%%P\php.exe" set "PHP_BIN=%%P"
+        )
+        for /d %%M in ("%%D:\wamp64\bin\mysql\mysql*") do (
+            if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
+        )
+        if defined PHP_BIN (
+            set "SERVER_NAME=WampServer"
+            goto :SERVER_FOUND
+        )
     )
-    for /d %%M in ("C:\wamp\bin\mysql\mysql*") do (
-        if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
-    )
-    if defined PHP_BIN (
-        set "SERVER_NAME=WampServer"
-        goto :SERVER_FOUND
+)
+
+:: --- WampServer 32-bit (check C: D: E: F:) ---
+for %%D in (C D E F) do (
+    if exist "%%D:\wamp\bin\php" (
+        for /d %%P in ("%%D:\wamp\bin\php\php*") do (
+            if exist "%%P\php.exe" set "PHP_BIN=%%P"
+        )
+        for /d %%M in ("%%D:\wamp\bin\mysql\mysql*") do (
+            if exist "%%M\bin\mysql.exe" set "MYSQL_BIN=%%M\bin"
+        )
+        if defined PHP_BIN (
+            set "SERVER_NAME=WampServer"
+            goto :SERVER_FOUND
+        )
     )
 )
 
