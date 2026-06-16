@@ -148,7 +148,10 @@ if not defined COMPOSER_CMD (
     if exist "!PHP_BIN!\composer.bat"  set "COMPOSER_CMD=!PHP_BIN!\composer.bat"
 )
 if not defined COMPOSER_CMD (
-    if exist "!PHP_BIN!\composer.phar" set "COMPOSER_CMD=php "!PHP_BIN!\composer.phar""
+    if exist "!PHP_BIN!\composer.phar" (
+        (echo @php "!PHP_BIN!\composer.phar" %%*) > "%PHP_BIN%\composer.bat"
+        set "COMPOSER_CMD=composer"
+    )
 )
 if not defined COMPOSER_CMD (
     if exist "C:\ProgramData\ComposerSetup\bin\composer.bat" (
@@ -325,8 +328,6 @@ timeout /t 2 /nobreak >nul
 
 :: LAUNCH
 :LAUNCH
-
-set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
 
 echo   %B%System%R%
 echo   %GRY%  --------------------------------------------------%R%
