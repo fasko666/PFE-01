@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
 title PANDA - Freelance Marketplace
 
@@ -79,6 +80,52 @@ for %%D in (C D E F) do (
     )
 )
 
+:: Fallback: system PHP (PATH / WinGet user install / WinGet machine install)
+for /f "tokens=*" %%P in ('where php 2^>nul') do (
+    if not defined PHP_BIN for %%F in ("%%P") do set "PHP_BIN=%%~dpF"
+)
+if not defined PHP_BIN (
+    for /d %%P in ("%LOCALAPPDATA%\Microsoft\WinGet\Packages\PHP.PHP*") do (
+        if exist "%%P\php.exe" set "PHP_BIN=%%P"
+    )
+)
+if not defined PHP_BIN (
+    for %%D in (C D E F) do (
+        for /d %%P in ("%%D:\Program Files\WindowsApps\PHP.PHP*") do (
+            if exist "%%P\php.exe" set "PHP_BIN=%%P"
+        )
+    )
+)
+if defined PHP_BIN (
+    if "!PHP_BIN:~-1!"=="\" set "PHP_BIN=!PHP_BIN:~0,-1!"
+    :: Try mysql.exe in PATH
+    for /f "tokens=*" %%M in ('where mysql 2^>nul') do (
+        if not defined MYSQL_BIN for %%F in ("%%M") do set "MYSQL_BIN=%%~dpF"
+    )
+    :: Common standalone MySQL paths
+    if not defined MYSQL_BIN (
+        for %%D in (C D E F) do (
+            for /d %%Q in ("%%D:\MySQL\MySQL Server *\bin") do (
+                if exist "%%Q\mysql.exe" set "MYSQL_BIN=%%Q"
+            )
+            for /d %%Q in ("%%D:\Program Files\MySQL\MySQL Server *\bin") do (
+                if exist "%%Q\mysql.exe" set "MYSQL_BIN=%%Q"
+            )
+        )
+    )
+    if not defined MYSQL_BIN (
+        if exist "!PHP_BIN!\mysql.exe" set "MYSQL_BIN=!PHP_BIN!"
+    )
+    :: MySQL may run as a Windows service — still usable even without binary path
+    if not defined MYSQL_BIN (
+        powershell -NoProfile -Command "Get-Service -Name 'MySQL*','MariaDB*' -EA SilentlyContinue | Select-Object -First 1 -ExpandProperty Name" > "%TEMP%\_panda_svc.txt" 2>nul
+        for /f "tokens=*" %%S in ('type "%TEMP%\_panda_svc.txt" 2^>nul') do set "MYSQL_SVC=%%S"
+        del "%TEMP%\_panda_svc.txt" >nul 2>&1
+    )
+    if defined MYSQL_BIN goto :SERVER_FOUND
+    if defined MYSQL_SVC goto :SERVER_FOUND
+)
+
 echo   %RED%[ERROR]%R%  No server found.
 echo            Install XAMPP  : https://www.apachefriends.org
 echo            Install Wamp   : https://www.wampserver.com
@@ -86,12 +133,37 @@ echo.
 pause & exit /b 1
 
 :SERVER_FOUND
-set "MYSQL=%MYSQL_BIN%\mysql.exe"
-set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
+if defined MYSQL_BIN (
+    set "MYSQL=%MYSQL_BIN%\mysql.exe"
+    set "PATH=%PHP_BIN%;%MYSQL_BIN%;%PATH%"
+) else (
+    set "MYSQL=mysql"
+    set "PATH=%PHP_BIN%;%PATH%"
+)
+
+:: Detect Composer (handles WinGet PHP dir and standard installs)
+set "COMPOSER_CMD="
+where composer >nul 2>&1 && set "COMPOSER_CMD=composer"
+if not defined COMPOSER_CMD (
+    if exist "!PHP_BIN!\composer.bat"  set "COMPOSER_CMD=!PHP_BIN!\composer.bat"
+)
+if not defined COMPOSER_CMD (
+    if exist "!PHP_BIN!\composer.phar" set "COMPOSER_CMD=php "!PHP_BIN!\composer.phar""
+)
+if not defined COMPOSER_CMD (
+    if exist "C:\ProgramData\ComposerSetup\bin\composer.bat" (
+        set "PATH=C:\ProgramData\ComposerSetup\bin;!PATH!"
+        set "COMPOSER_CMD=composer"
+    )
+)
 
 for /f "tokens=*" %%v in ('php -r "echo phpversion();" 2^>nul') do set "PHPV=%%v"
 echo   %GRY%  PHP    %R%%WHT%%PHP_BIN%%R%  %GRY%(v%PHPV%)%R%
-echo   %GRY%  MySQL  %R%%WHT%%MYSQL_BIN%%R%
+if defined MYSQL_BIN (
+    echo   %GRY%  MySQL  %R%%WHT%%MYSQL_BIN%%R%
+) else (
+    echo   %GRY%  MySQL  %R%%WHT%service: !MYSQL_SVC!%R%
+)
 echo.
 
 :: SETUP CHECK
@@ -120,19 +192,20 @@ echo.
 
 :: [1/4] Composer
 echo   %GRY%[1/4]%R%  %B%Composer%R%
-where composer >nul 2>&1
-if errorlevel 1 (
+if not defined COMPOSER_CMD (
     echo          %YLW%Not found - installing via winget...%R%
     winget install Composer.Composer --accept-package-agreements --accept-source-agreements --silent >nul 2>&1
-    if exist "C:\ProgramData\ComposerSetup\bin\composer.bat" set "PATH=C:\ProgramData\ComposerSetup\bin;%PATH%"
+    if exist "C:\ProgramData\ComposerSetup\bin\composer.bat" (
+        set "PATH=C:\ProgramData\ComposerSetup\bin;!PATH!"
+        set "COMPOSER_CMD=composer"
+    )
 )
-where composer >nul 2>&1
-if errorlevel 1 (
+if not defined COMPOSER_CMD (
     echo          %RED%[FAIL] Not found. Install from https://getcomposer.org%R%
     echo.
     pause & exit /b 1
 )
-for /f "tokens=3" %%v in ('composer --version 2^>nul') do set "COMPV=%%v"
+for /f "tokens=3" %%v in ('!COMPOSER_CMD! --version 2^>nul') do set "COMPV=%%v"
 echo          %GRN%[OK]%R%  Composer %GRY%%COMPV%%R%
 echo.
 
@@ -191,10 +264,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "$c=[IO.File]::ReadAllTex
 
 echo          %GRY%->  composer install (1-2 min)...%R%
 pushd "%BACKEND%"
-composer install --no-interaction --prefer-dist --optimize-autoloader
+!COMPOSER_CMD! install --no-interaction --prefer-dist --optimize-autoloader
 if errorlevel 1 (
     echo          %YLW%->  Updating packages for PHP %PHPV%...%R%
-    composer update --no-interaction --prefer-dist --optimize-autoloader
+    !COMPOSER_CMD! update --no-interaction --prefer-dist --optimize-autoloader
     if errorlevel 1 (
         echo.
         echo          %RED%[FAIL] Run manually: cd backend-laravel ^&^& composer update%R%
@@ -268,9 +341,8 @@ if errorlevel 1 ( echo   %RED%[FAIL]%R%  Node.js not found & pause & exit /b 1 )
 for /f "tokens=*" %%v in ('node -v 2^>nul') do set "NODEV=%%v"
 echo   %GRN%[OK]%R%  Node.js   %GRY%%NODEV%%R%
 
-where composer >nul 2>&1
-if errorlevel 1 ( echo   %RED%[FAIL]%R%  Composer not found & pause & exit /b 1 )
-for /f "tokens=3" %%v in ('composer --version 2^>nul') do set "COMPV=%%v"
+if not defined COMPOSER_CMD ( echo   %RED%[FAIL]%R%  Composer not found & pause & exit /b 1 )
+for /f "tokens=3" %%v in ('!COMPOSER_CMD! --version 2^>nul') do set "COMPV=%%v"
 echo   %GRN%[OK]%R%  Composer  %GRY%v%COMPV%%R%
 echo.
 
