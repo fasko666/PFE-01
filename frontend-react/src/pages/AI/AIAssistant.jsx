@@ -22,7 +22,7 @@ export default function AIAssistant() {
   const initMsg = (id) => ({
     id: 'init',
     role: 'assistant',
-    content: `Hi ${user?.name?.split(' ')[0] || 'there'}! I'm your PANDA AI â€” powered by Mistral. I can help you write proposals, optimize your profile, find talent, or answer any freelancing question. What can I help you with today?`,
+    content: `Hi ${user?.name?.split(' ')[0] || 'there'}! I'm your PANDA AI assistant. I can help you write proposals, optimize your profile, find talent, or answer any freelancing question. What can I help you with today?`,
   });
 
   const [chats, setChats] = useState(() => {
@@ -77,7 +77,7 @@ export default function AIAssistant() {
       const isFirst = c.messages.filter((m) => m.role === 'user').length === 0;
       return {
         ...c,
-        title: isFirst ? content.slice(0, 40) + (content.length > 40 ? 'â€¦' : '') : c.title,
+        title: isFirst ? content.slice(0, 40) + (content.length > 40 ? '…' : '') : c.title,
         messages: [...c.messages, userMsg],
         ts: Date.now(),
       };
@@ -86,7 +86,7 @@ export default function AIAssistant() {
     try {
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
       const res = await api.aiApi.chat({ message: content, history });
-      const reply = res.data.data?.message || res.data.message || 'I apologize, I could not process that request.';
+      const reply = res.data.response || res.data.data?.response || res.data.message || 'I apologize, I could not process that request.';
       const assistantMsg = { id: Date.now() + 1, role: 'assistant', content: reply };
       setChats((prev) => prev.map((c) =>
         c.id === activeChatId ? { ...c, messages: [...c.messages, assistantMsg] } : c
@@ -105,7 +105,7 @@ export default function AIAssistant() {
   return (
     <div className="h-[calc(100vh-7.5rem)] flex rounded-2xl overflow-hidden border border-dark-700/60 bg-dark-950">
 
-      {/* â”€â”€ Left sidebar â”€â”€ */}
+      {/* Left sidebar */}
       <div className="w-60 shrink-0 border-r border-dark-700/50 flex flex-col bg-dark-800/40">
         {/* Header */}
         <div className="px-3 pt-4 pb-3 border-b border-dark-700/50 shrink-0">
@@ -156,12 +156,12 @@ export default function AIAssistant() {
         <div className="px-3 py-3 border-t border-dark-700/50 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shrink-0" />
-            <span className="text-2xs text-dark-600">Mistral via Ollama</span>
+            <span className="text-2xs text-dark-600">PANDA AI via Ollama</span>
           </div>
         </div>
       </div>
 
-      {/* â”€â”€ Chat area â”€â”€ */}
+      {/* Chat area */}
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Chat header */}
@@ -223,7 +223,7 @@ export default function AIAssistant() {
           <div ref={endRef} />
         </div>
 
-        {/* Suggestion chips â€” show on new chats */}
+        {/* Suggestion chips - show on new chats */}
         {messages.filter((m) => m.role === 'user').length === 0 && (
           <div className="px-5 pb-3 flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
@@ -246,7 +246,7 @@ export default function AIAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="input flex-1 text-sm py-2.5"
-            placeholder="Ask anything about freelancingâ€¦"
+            placeholder="Ask anything about freelancing..."
             disabled={loading}
           />
           <motion.button

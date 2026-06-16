@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Wallet, ArrowLeft, ArrowRight, AlertCircle, CheckCircle2, Clock,
-  Loader2, Shield, ExternalLink, Banknote,
+  Loader2, Shield, ExternalLink, Banknote, Unlink,
 } from 'lucide-react';
+import { confirm } from '../../components/ui/ConfirmModal';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
 
@@ -34,7 +35,8 @@ export default function Withdraw() {
   const [method,  setMethod]  = useState('stripe');
   const [details, setDetails] = useState({ email: '', account_number: '', routing_number: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [connecting,  setConnecting]  = useState(false);
+  const [connecting,    setConnecting]    = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -66,6 +68,25 @@ export default function Withdraw() {
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Stripe Connect not configured yet — contact admin');
       setConnecting(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!await confirm('Disconnect your Stripe account? You will need to reconnect to receive Stripe payouts.', {
+      title: 'Disconnect Stripe',
+      variant: 'danger',
+      confirmLabel: 'Disconnect',
+    })) return;
+    setDisconnecting(true);
+    try {
+      await api.payments.stripeConnectDisconnect();
+      toast.success('Stripe account disconnected');
+      setConnect(null);
+      setMethod('bank');
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Failed to disconnect');
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -157,19 +178,33 @@ export default function Withdraw() {
             </div>
             <p className="text-xs text-dark-400 leading-relaxed mb-3">
               {connectActive
-                ? 'You can receive instant payouts via Stripe.'
+                ? 'Your account is verified — you can receive instant payouts via Stripe.'
+                : connect
+                ? 'Stripe is reviewing your information. Payouts will be enabled once verified.'
                 : 'Connect your Stripe account to receive instant payouts. Verification takes 5-10 minutes.'}
             </p>
-            {!connectActive && (
-              <button
-                onClick={handleConnect}
-                disabled={connecting}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-all disabled:opacity-60"
-              >
-                {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
-                {connecting ? 'Redirecting…' : 'Connect Stripe account'}
-              </button>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              {!connect && (
+                <button
+                  onClick={handleConnect}
+                  disabled={connecting}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-all disabled:opacity-60"
+                >
+                  {connecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
+                  {connecting ? 'Redirecting…' : 'Connect Stripe account'}
+                </button>
+              )}
+              {connect && (
+                <button
+                  onClick={handleDisconnect}
+                  disabled={disconnecting}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-red-500/40 text-red-300 text-xs font-semibold hover:bg-red-500/10 transition-all disabled:opacity-60"
+                >
+                  {disconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlink className="w-3.5 h-3.5" />}
+                  {disconnecting ? 'Disconnecting…' : 'Disconnect Stripe'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

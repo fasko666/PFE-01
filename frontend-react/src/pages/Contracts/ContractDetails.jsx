@@ -291,7 +291,7 @@ function PartyCard({ label, user, mine }) {
   if (!user) return null;
   return (
     <div className={`rounded-xl border p-3 flex items-center gap-3 ${mine ? 'border-primary-500/30 bg-primary-500/5' : 'border-dark-800 bg-dark-900/50'}`}>
-      <UserAvatar user={user} size={36} ring={false} />
+      <UserAvatar user={user} size={36} ring={false} card={!mine} />
       <div className="min-w-0 flex-1">
         <div className="text-2xs text-dark-500 uppercase tracking-wider">{label}{mine && ' (you)'}</div>
         <div className="text-sm font-semibold text-dark-100 truncate">{user.name}</div>

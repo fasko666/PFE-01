@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 setlocal enabledelayedexpansion
 chcp 65001 >nul
 title PANDA - Freelance Marketplace
@@ -376,6 +376,15 @@ echo.
 
 echo   %B%Servers%R%
 echo   %GRY%  --------------------------------------------------%R%
+
+:: Start Ollama AI (background, no new window)
+set "OLLAMA_EXE=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
+if exist "!OLLAMA_EXE!" (
+    powershell -NoProfile -Command "if (-not (Get-Process -Name ollama -EA SilentlyContinue)) { Start-Process -FilePath '!OLLAMA_EXE!' -ArgumentList 'serve' -WindowStyle Hidden }" >nul 2>&1
+    echo   %GRN%[OK]%R%  Ollama AI %GRY%(Mistral)%R%
+) else (
+    echo   %GRY%[--]%R%  Ollama not installed  %GRY%(AI uses smart fallback)%R%
+)
 
 start "PANDA Backend" /D "%BACKEND%" cmd /k "color 17 && echo. && echo   PANDA Backend  -  http://localhost:8000 && echo. && php artisan serve --host=127.0.0.1 --port=8000"
 timeout /t 8 /nobreak >nul

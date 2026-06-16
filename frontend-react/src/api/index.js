@@ -235,9 +235,10 @@ export const payments = {
   requestWithdrawal:(data)    => http.post('/payments/withdrawals', data),
 
   // Stripe
-  stripeDepositSession: (amount) => http.post('/payments/stripe/deposit-session', { amount }),
-  stripeConnectOnboard: ()       => http.post('/payments/stripe/connect/onboard'),
-  stripeConnectStatus:  ()       => http.get('/payments/stripe/connect/status'),
+  stripeDepositSession:    (amount) => http.post('/payments/stripe/deposit-session', { amount }),
+  stripeConnectOnboard:    ()       => http.post('/payments/stripe/connect/onboard'),
+  stripeConnectStatus:     ()       => http.get('/payments/stripe/connect/status'),
+  stripeConnectDisconnect: ()       => http.delete('/payments/stripe/connect'),
 };
 
 // Admin finance

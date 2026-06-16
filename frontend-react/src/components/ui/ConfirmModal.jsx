@@ -4,7 +4,7 @@ import { AlertTriangle, Info, Trash2, CheckCircle } from 'lucide-react';
 import { create } from 'zustand';
 
 /* ── Global store ─────────────────────────────────────────── */
-export const useConfirmStore = create((set) => ({
+export const useConfirmStore = create((set, get) => ({
   open:      false,
   title:     '',
   message:   '',
@@ -23,7 +23,7 @@ export const useConfirmStore = create((set) => ({
       })
     ),
 
-  answer: (result, get) => {
+  answer: (result) => {
     const { resolve } = get();
     set({ open: false });
     setTimeout(() => resolve?.(result), 200);
@@ -68,7 +68,7 @@ export default function ConfirmModal() {
   // Close on Escape
   useEffect(() => {
     if (!open) return;
-    const handler = (e) => { if (e.key === 'Escape') store.getState().answer(false, store.getState()); };
+    const handler = (e) => { if (e.key === 'Escape') store.getState().answer(false); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [open]);
@@ -84,7 +84,7 @@ export default function ConfirmModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            onClick={() => store.getState().answer(false, store.getState())}
+            onClick={() => store.getState().answer(false)}
             className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
           />
 
@@ -115,13 +115,13 @@ export default function ConfirmModal() {
               {/* Actions */}
               <div className="flex items-center justify-end gap-3 pt-1">
                 <button
-                  onClick={() => store.getState().answer(false, store.getState())}
+                  onClick={() => store.getState().answer(false)}
                   className="px-4 py-2 text-sm font-semibold rounded-xl border border-dark-700 text-dark-300 hover:bg-dark-800 hover:text-dark-100 transition-colors"
                 >
                   {cancelLabel}
                 </button>
                 <button
-                  onClick={() => store.getState().answer(true, store.getState())}
+                  onClick={() => store.getState().answer(true)}
                   className={`px-5 py-2 text-sm font-semibold rounded-xl transition-colors ${BTN_CONFIRM[variant]}`}
                 >
                   {confirmLabel}

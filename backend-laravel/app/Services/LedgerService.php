@@ -386,6 +386,21 @@ class LedgerService
     }
 
     /* ════════════════════════════════════════════════════════════════════════
+     *  RELEASE ON COMPLETION — remaining escrow goes to freelancer when client
+     *  marks the contract complete. Thin wrapper around disputeReleaseToFreelancer
+     *  so callers have a clearly named entry point.
+     * ════════════════════════════════════════════════════════════════════════ */
+    public function releaseOnCompletion(Contract $contract, float $amount): array
+    {
+        return $this->disputeReleaseToFreelancer(
+            $contract,
+            $amount,
+            "complete:{$contract->id}",
+            applyCommission: true,
+        );
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
      *  DISPUTE RELEASE — admin moves part/all escrow to freelancer
      *
      *  Used by ContractController::resolveDispute. Distinct from releaseMilestone

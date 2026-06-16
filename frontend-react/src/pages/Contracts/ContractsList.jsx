@@ -258,7 +258,7 @@ function ContractCard({ contract, myId, index }) {
         {/* Other party */}
         {otherUser && (
           <div className="flex items-center gap-2.5 mb-4 p-2.5 rounded-xl bg-dark-950/40 border border-dark-800/40">
-            <UserAvatar user={otherUser} size={30} ring={false} />
+            <UserAvatar user={otherUser} size={30} ring={false} card />
             <div className="min-w-0 flex-1">
               <div className="text-xs font-semibold text-dark-100 truncate">{otherUser.name}</div>
               <div className="text-2xs text-dark-500 mt-0.5">{role}</div>

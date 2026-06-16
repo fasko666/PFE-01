@@ -47,7 +47,7 @@ export default function TalentListDetails() {
             return (
               <div key={f.id} className="rounded-2xl border border-dark-800 bg-dark-900 p-4">
                 <div className="flex items-start gap-3">
-                  <UserAvatar user={f} size={44} ring={false} />
+                  <UserAvatar user={f} size={44} ring={false} card />
                   <div className="min-w-0 flex-1">
                     <Link to={`/freelancers/${f.username}`} className="text-sm font-bold text-dark-100 truncate hover:text-white block">{f.name}</Link>
                     <div className="text-2xs text-dark-500 truncate">{fp.title || ''}</div>

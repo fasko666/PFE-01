@@ -6,6 +6,7 @@ import {
   UserCircle2, User, TrendingUp, Zap,
   ShieldCheck, BadgeCheck, Sun, Moon, Monitor,
   Menu, X, Search as SearchIcon, ExternalLink, Loader2,
+  LayoutDashboard,
 } from 'lucide-react';
 import PandaLogo from '../ui/PandaLogo';
 import NotificationPanel from '../ui/NotificationPanel';
@@ -14,6 +15,7 @@ import NavSearch from '../ui/NavSearch';
 import useAuthStore from '../../store/authStore';
 import useNotificationStore from '../../store/notificationStore';
 import useThemeStore from '../../store/themeStore';
+import { getEcho } from '../../lib/echo';
 import { api } from '../../api';
 import toast from 'react-hot-toast';
 
@@ -352,6 +354,21 @@ export default function GlobalNavbar() {
     return () => clearInterval(id);
   }, [token]);
 
+  // Real-time: subscribe to the per-user private channel so the bell badge
+  // updates instantly when any notification.created event arrives (e.g. a new message).
+  useEffect(() => {
+    if (!token || !user?.id) return;
+    const echo = getEcho();
+    const ch = echo.private(`user.${user.id}`)
+      .listen('.notification.created', (e) => {
+        useNotificationStore.getState().push(e.notification, e.unread_count);
+      });
+    return () => {
+      try { echo.leave(`user.${user.id}`); } catch { /* noop */ }
+      void ch;
+    };
+  }, [token, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const h = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -678,6 +695,7 @@ export default function GlobalNavbar() {
 
                     {/* Menu items */}
                     <div className="py-1 border-b border-dark-800">
+                      <PRow icon={LayoutDashboard} label="Dashboard"     onClick={() => go('/dashboard')} />
                       <PRow icon={User}        label="Your profile"      onClick={() => go(isFreelancer ? '/freelancer/profile' : '/settings')} />
                       {isFreelancer && (
                         <PRow icon={TrendingUp} label="Stats and trends"  onClick={() => go('/reports')} />

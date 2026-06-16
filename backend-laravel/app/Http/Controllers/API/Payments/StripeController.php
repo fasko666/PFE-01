@@ -60,4 +60,21 @@ class StripeController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
     }
+
+    public function connectDisconnect(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user->stripe_account_id) {
+            return response()->json(['message' => 'No Stripe account connected'], 422);
+        }
+
+        // Clear the Connect account from our records
+        $user->forceFill([
+            'stripe_account_id'     => null,
+            'stripe_account_status' => null,
+        ])->save();
+
+        return response()->json(['message' => 'Stripe account disconnected']);
+    }
 }

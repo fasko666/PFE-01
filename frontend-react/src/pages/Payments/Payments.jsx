@@ -50,29 +50,17 @@ export default function Payments() {
 
   const handleAddFunds = async (e) => {
     e.preventDefault();
-    if (!amount || Number(amount) < 5) return toast.error('Minimum deposit is $5');
+    const amt = Number(amount);
+    if (!amt || amt < 10) return toast.error('Minimum deposit is $10');
     setAdding(true);
     try {
-      // 1. Try Stripe Checkout (production-ready when STRIPE_SECRET is configured).
-      // 2. Falls back to direct wallet credit (dev mode) if Stripe isn't set up.
-      const res = await api.payments.stripeDepositSession(Number(amount));
-      const url = res.data?.data?.checkout_url;
-      if (url) {
-        window.location.href = url;
-        return;
-      }
-      throw new Error('no_url');
+      await api.payments.deposit({ amount: amt, payment_method: 'demo', description: 'Wallet top-up' });
+      toast.success(`$${amt} added to your wallet!`);
+      setAddModal(false);
+      setAmount('');
+      load();
     } catch (err) {
-      // Stripe not configured — fall back to direct deposit so dev/staging still works.
-      try {
-        await api.payments.deposit({ amount: Number(amount), description: 'Wallet top-up (dev mode)' });
-        toast.success(`$${amount} added to wallet (dev mode)`);
-        setAddModal(false);
-        setAmount('');
-        load();
-      } catch (e) {
-        toast.error(e?.response?.data?.message || 'Payment failed.');
-      }
+      toast.error(err?.response?.data?.message || 'Deposit failed');
     } finally {
       setAdding(false);
     }
@@ -348,8 +336,8 @@ export default function Payments() {
                     min="10"
                   />
                 </div>
-                <p className="text-2xs text-dark-600">Platform fee: 3% · Min $10 · Demo mode — no real charges</p>
-                <button type="submit" disabled={adding} className="btn btn-primary w-full">
+                <p className="text-2xs text-dark-600">Min $10 · Demo mode — funds added instantly, no real charges</p>
+                <button type="submit" disabled={adding || !amount || Number(amount) < 10} className="btn btn-primary w-full disabled:opacity-50">
                   {adding ? 'Processing…' : `Add $${amount || '0'} to Wallet`}
                 </button>
               </form>

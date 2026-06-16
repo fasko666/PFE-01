@@ -44,6 +44,12 @@ const useNotificationStore = create((set, get) => ({
     try { await http.post('/notifications/read-all'); } catch {}
   },
 
+  // Push a single notification from a real-time event (no HTTP round-trip needed)
+  push: (notification, unreadCount) => set((s) => ({
+    notifications: [notification, ...s.notifications],
+    unreadCount: unreadCount !== undefined ? unreadCount : s.unreadCount + 1,
+  })),
+
   clear: () => set({ notifications: [], unreadCount: 0 }),
 }));
 

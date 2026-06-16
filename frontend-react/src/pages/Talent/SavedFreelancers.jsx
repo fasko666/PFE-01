@@ -62,7 +62,7 @@ export default function SavedFreelancers() {
               return (
                 <div key={s.id} className="rounded-2xl border border-dark-800 bg-dark-900 p-4">
                   <div className="flex items-start gap-3">
-                    <UserAvatar user={f} size={48} ring={false} />
+                    <UserAvatar user={f} size={48} ring={false} card />
                     <div className="min-w-0 flex-1">
                       <Link to={f.username ? `/freelancers/${f.username}` : '#'} className="text-sm font-bold text-dark-100 truncate hover:text-white block">{f.name}</Link>
                       <div className="text-2xs text-dark-500 truncate">{fp.title || ''}</div>

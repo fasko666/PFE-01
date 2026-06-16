@@ -184,7 +184,7 @@ function WorkDiary() {
           >
             <div className="flex items-start gap-4 flex-wrap sm:flex-nowrap">
               {/* Client avatar */}
-              {client && <UserAvatar user={client} size={40} ring={false} />}
+              {client && <UserAvatar user={client} size={40} ring={false} card />}
 
               {/* Contract info */}
               <div className="flex-1 min-w-0">

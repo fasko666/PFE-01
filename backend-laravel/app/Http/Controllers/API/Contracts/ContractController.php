@@ -117,22 +117,24 @@ class ContractController extends Controller
     /* ════════════════════════════════════════════════════════════════════════
      *  POST /contracts/{contract}/complete — client closes the contract
      *
-     *  - Refunds any remaining escrow back to client (LedgerService::refundEscrow)
+     *  - Releases any remaining escrow to the freelancer (platform fee applied)
      *  - Marks the contract `completed` with completed_by + ended_at
-     *  - Notifies the freelancer
+     *  - Notifies the freelancer with the payout amount
      * ════════════════════════════════════════════════════════════════════════ */
     public function complete(Request $request, Contract $contract): JsonResponse
     {
         $this->authorizeOrFail($request, 'complete', $contract);
         $this->assertTransition($contract, 'completed');
 
-        $user = $request->user();
+        $user    = $request->user();
+        $payout  = 0;
 
-        DB::transaction(function () use ($contract, $user) {
-            // Refund any leftover escrow to client (idempotent: only acts if > 0)
+        DB::transaction(function () use ($contract, $user, &$payout) {
             $leftover = (float) $contract->escrow_amount;
             if ($leftover > 0) {
-                $this->ledger->refundEscrow($contract, $leftover, 'Contract completed — returning unused escrow');
+                // Release remaining escrow to the freelancer (platform commission applied)
+                $result = $this->ledger->releaseOnCompletion($contract, $leftover);
+                $payout = $result['payout'];
             }
 
             $contract->update([
@@ -142,10 +144,26 @@ class ContractController extends Controller
             ]);
         });
 
-        // Notify the other party
-        $other = $user->id === (int) $contract->client_id ? $contract->freelancer : $contract->client;
-        if ($other) {
-            $this->notifications->send($other, [
+        $freelancer = $contract->freelancer;
+        $client     = $contract->client;
+
+        // Notify freelancer about payout
+        if ($freelancer) {
+            $payoutMsg = $payout > 0
+                ? " \${$payout} has been added to your wallet."
+                : '';
+            $this->notifications->send($freelancer, [
+                'type'       => 'payment',
+                'title'      => 'Contract completed — payment received',
+                'body'       => "Contract \"{$contract->title}\" was marked complete.{$payoutMsg}",
+                'action_url' => "/contracts/{$contract->id}",
+                'icon'       => 'check-circle',
+            ]);
+        }
+
+        // Notify client (if someone else triggered the completion)
+        if ($client && $user->id !== (int) $contract->client_id) {
+            $this->notifications->send($client, [
                 'type'       => 'contract',
                 'title'      => 'Contract completed',
                 'body'       => "Contract \"{$contract->title}\" was marked completed.",
@@ -157,6 +175,7 @@ class ContractController extends Controller
         return response()->json([
             'data' => [
                 'message'  => 'Contract completed.',
+                'payout'   => $payout,
                 'contract' => $contract->fresh(),
             ],
         ]);

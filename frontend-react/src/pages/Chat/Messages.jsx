@@ -566,7 +566,7 @@ export default function Messages() {
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             </button>
             <div className="relative shrink-0">
-              <UserAvatar user={otherUser(active)} size={36} ring={false} />
+              <UserAvatar user={otherUser(active)} size={36} ring={false} card />
               {(isOnline(otherUser(active).id) || otherUser(active).is_online) && (
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-dark-950" />
               )}

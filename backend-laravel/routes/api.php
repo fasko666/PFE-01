@@ -316,9 +316,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/withdrawals', [PaymentController::class, 'requestWithdrawal']);
 
         // Stripe integration
-        Route::post('/stripe/deposit-session', [\App\Http\Controllers\API\Payments\StripeController::class, 'createDepositSession']);
-        Route::post('/stripe/connect/onboard', [\App\Http\Controllers\API\Payments\StripeController::class, 'connectOnboard']);
-        Route::get('/stripe/connect/status',   [\App\Http\Controllers\API\Payments\StripeController::class, 'connectStatus']);
+        Route::post  ('/stripe/deposit-session', [\App\Http\Controllers\API\Payments\StripeController::class, 'createDepositSession']);
+        Route::post  ('/stripe/connect/onboard', [\App\Http\Controllers\API\Payments\StripeController::class, 'connectOnboard']);
+        Route::get   ('/stripe/connect/status',  [\App\Http\Controllers\API\Payments\StripeController::class, 'connectStatus']);
+        Route::delete('/stripe/connect',         [\App\Http\Controllers\API\Payments\StripeController::class, 'connectDisconnect']);
     });
 
     // AI — rate-limited (cost protection: AI calls hit a paid LLM upstream)

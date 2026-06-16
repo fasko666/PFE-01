@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageReaction;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -139,6 +140,23 @@ class ChatController extends Controller
 
         broadcast(new MessageSent($message))->toOthers();
         $this->pushConversationUpdated($conversation);
+
+        // Notify every participant who is NOT the sender
+        $sender       = $request->user();
+        $notifService = app(NotificationService::class);
+        $preview      = mb_strimwidth($request->content, 0, 80, '…');
+        foreach ($conversation->participants as $participant) {
+            if ((int) $participant->id === (int) $sender->id) {
+                continue;
+            }
+            $notifService->send($participant, [
+                'type'       => 'message',
+                'title'      => $sender->name . ' sent you a message',
+                'body'       => $preview,
+                'action_url' => '/messages',
+                'icon'       => 'message',
+            ]);
+        }
 
         return response()->json(['data' => $message], 201);
     }
