@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -331,7 +330,6 @@ class AuthController extends Controller
 
             $user->save();
             Wallet::create(['user_id' => $user->id]);
-            Subscription::create(['user_id' => $user->id, 'plan' => 'free', 'connects_balance' => 10]);
         }
 
         // Reject Google login for banned accounts

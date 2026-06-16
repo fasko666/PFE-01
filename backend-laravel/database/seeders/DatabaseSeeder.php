@@ -9,7 +9,6 @@ use App\Models\JobPosting;
 use App\Models\FreelancerProfile;
 use App\Models\ClientProfile;
 use App\Models\Wallet;
-use App\Models\Subscription;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -58,7 +57,6 @@ class DatabaseSeeder extends Seeder
             'avatar' => 'https://randomuser.me/api/portraits/men/0.jpg',
         ]);
         Wallet::create(['user_id' => $admin->id]);
-        Subscription::create(['user_id' => $admin->id, 'plan' => 'enterprise', 'connects_balance' => 9999]);
 
         // ── Freelancers ───────────────────────────────────────────────────────
         $freelancers = [
@@ -170,7 +168,6 @@ class DatabaseSeeder extends Seeder
                 'is_top_rated' => $f['top'], 'availability' => 'available',
             ]);
             Wallet::create(['user_id' => $u->id, 'balance' => $f['rate'] * $f['jobs'] * 2]);
-            Subscription::create(['user_id' => $u->id, 'plan' => 'freelancer_plus', 'connects_balance' => 80]);
             $skills = Skill::whereIn('name', $f['skills'])->get();
             foreach ($skills as $sk) {
                 $u->skills()->attach($sk->id, ['level' => 'expert']);
@@ -240,7 +237,6 @@ class DatabaseSeeder extends Seeder
                 'total_reviews' => $c['jobs_posted'],
             ]);
             Wallet::create(['user_id' => $u->id, 'balance' => $c['balance']]);
-            Subscription::create(['user_id' => $u->id, 'plan' => 'business', 'connects_balance' => 0]);
             $clientUsers[] = $u;
         }
 
